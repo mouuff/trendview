@@ -2,13 +2,30 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/ollama/ollama/api"
 )
 
+type DataOut struct {
+	Temperature int `json:"temperature"`
+}
+
 func main() {
+
+	p := DataOut{
+		Temperature: 0,
+	}
+
+	// Step 2: Marshal the struct to JSON bytes
+	data, err := json.Marshal(p)
+	if err != nil {
+		fmt.Println("Error marshaling:", err)
+		return
+	}
+
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Fatal(err)
@@ -16,7 +33,8 @@ func main() {
 
 	req := &api.GenerateRequest{
 		Model:  "mistral",
-		Prompt: "how many monkeys are there?",
+		Prompt: "What is the temperature of a monkey?",
+		Format: "json",
 
 		// set streaming to false
 		Stream: new(bool),
