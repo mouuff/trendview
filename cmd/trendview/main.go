@@ -18,7 +18,7 @@ func main() {
 
 	// Print first few reports as example
 	for i, report := range reports {
-		if i >= 3 { // Limit to 3 reports for brevity
+		if i >= 5 {
 			break
 		}
 		fmt.Printf("Report %d:\n", i+1)

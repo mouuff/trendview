@@ -5,6 +5,7 @@ type Report struct {
 	Content  string
 	DateTime string
 	Link     string
+	GUID     string
 }
 
 type ReportProvider interface {
