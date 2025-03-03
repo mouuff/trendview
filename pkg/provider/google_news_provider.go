@@ -51,6 +51,21 @@ func cleanHTML(html string) string {
 	return text
 }
 
+// parsePubDate attempts to parse RSS publication date strings
+func parsePubDate(pubDate string) (*time.Time, error) {
+	// Try RFC1123 first (handles GMT and other timezone names)
+	if parsed, err := time.Parse(time.RFC1123, pubDate); err == nil {
+		return &parsed, nil
+	}
+
+	// Fallback to RFC1123Z (handles numeric offsets)
+	if parsed, err := time.Parse(time.RFC1123Z, pubDate); err == nil {
+		return &parsed, nil
+	}
+
+	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
+}
+
 func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
 	resp, err := http.Get(p.url)
 	if err != nil {
@@ -71,7 +86,7 @@ func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
 
 	reports := make([]Report, 0, len(rss.Channel.Items))
 	for _, item := range rss.Channel.Items {
-		parsedDate, err := time.Parse(time.RFC1123Z, item.PubDate)
+		parsedDate, err := parsePubDate(item.PubDate)
 		if err != nil {
 			fmt.Printf("Warning: Failed to parse date '%s': %v. Skipping this item.\n", item.PubDate, err)
 			continue
@@ -80,7 +95,7 @@ func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
 		report := Report{
 			Title:    item.Title,
 			Content:  cleanHTML(item.Description),
-			DateTime: parsedDate.Format(time.RFC3339),
+			DateTime: parsedDate,
 			Link:     item.Link,
 			GUID:     item.GUID,
 		}
