@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/ollama/ollama/api"
 )
@@ -47,9 +46,29 @@ func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (
 		Required: []string{"confidence"},
 	}
 
-	format, err := json.Marshal(formatSchema)
+	var result ConfidenceResult
+
+	respFunc := func(resp api.GenerateResponse) error {
+		err := json.Unmarshal([]byte(resp.Response), &result)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	err := c.Generate(ctx, prompt, formatSchema, respFunc)
+
 	if err != nil {
 		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (c *OllamaProvider) Generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
+	format, err := json.Marshal(formatSchema)
+	if err != nil {
+		return err
 	}
 
 	req := &api.GenerateRequest{
@@ -61,20 +80,10 @@ func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (
 		Stream: new(bool),
 	}
 
-	var result ConfidenceResult
-
-	respFunc := func(resp api.GenerateResponse) error {
-		err := json.Unmarshal([]byte(resp.Response), &result)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
-	err = c.Client.Generate(ctx, req, respFunc)
+	err = c.Client.Generate(ctx, req, fn)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &result, nil
+	return nil
 }
