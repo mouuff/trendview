@@ -36,7 +36,7 @@ func NewOllamaProvider(confidencePrompt string) (*OllamaProvider, error) {
 	}, nil
 }
 
-func (c *OllamaProvider) PredictConfidence(prompt string) (*ConfidenceResult, error) {
+func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
@@ -53,7 +53,7 @@ func (c *OllamaProvider) PredictConfidence(prompt string) (*ConfidenceResult, er
 	}
 
 	req := &api.GenerateRequest{
-		Model:  "mistral",
+		Model:  c.Model,
 		Prompt: prompt,
 		Format: format,
 
@@ -61,11 +61,15 @@ func (c *OllamaProvider) PredictConfidence(prompt string) (*ConfidenceResult, er
 		Stream: new(bool),
 	}
 
-	ctx := context.Background()
+	var result ConfidenceResult
+
 	respFunc := func(resp api.GenerateResponse) error {
-		// Only print the response here; GenerateResponse has a number of other
-		// interesting fields you want to examine.
+		// TODO remove println
 		fmt.Println(resp.Response)
+		err := json.Unmarshal([]byte(resp.Response), &result)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -74,5 +78,5 @@ func (c *OllamaProvider) PredictConfidence(prompt string) (*ConfidenceResult, er
 		return nil, err
 	}
 
-	return nil, nil
+	return &result, nil
 }
