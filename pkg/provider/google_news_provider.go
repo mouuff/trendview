@@ -73,14 +73,7 @@ func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
 	for _, item := range rss.Channel.Items {
 		parsedDate, err := time.Parse(time.RFC1123Z, item.PubDate)
 		if err != nil {
-			fmt.Printf("Warning: Failed to parse date '%s': %v. Using original string.\n", item.PubDate, err)
-			reports = append(reports, Report{
-				Title:    item.Title,
-				Content:  cleanHTML(item.Description),
-				DateTime: item.PubDate,
-				Link:     item.Link,
-				GUID:     item.GUID,
-			})
+			fmt.Printf("Warning: Failed to parse date '%s': %v. Skipping this item.\n", item.PubDate, err)
 			continue
 		}
 
