@@ -1,7 +1,37 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/ollama/ollama/api"
+)
 
 func main() {
-	fmt.Println("Hello, world.")
+	client, err := api.ClientFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req := &api.GenerateRequest{
+		Model:  "mistral",
+		Prompt: "how many monkeys are there?",
+
+		// set streaming to false
+		Stream: new(bool),
+	}
+
+	ctx := context.Background()
+	respFunc := func(resp api.GenerateResponse) error {
+		// Only print the response here; GenerateResponse has a number of other
+		// interesting fields you want to examine.
+		fmt.Println(resp.Response)
+		return nil
+	}
+
+	err = client.Generate(ctx, req, respFunc)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
