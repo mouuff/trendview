@@ -68,6 +68,7 @@ func main() {
 	}
 
 	err = client.Generate(ctx, req, respFunc)
+	fmt.Println("!!!test!!!!")
 	if err != nil {
 		log.Fatal(err)
 	}
