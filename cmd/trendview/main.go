@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mouuff/TrendView/pkg/provider"
+	"github.com/mouuff/TrendView/pkg/generator"
 )
 
 func main() {
 	ctx := context.Background()
-	pro, err := provider.NewOllamaProvider()
+	pro, err := generator.NewOllamaGenerator()
 
 	if err != nil {
 		fmt.Println("Error marshaling:", err)
@@ -26,9 +26,9 @@ func main() {
 	}
 
 	for _, news := range newsList {
-		result, err := pro.PredictConfidence(ctx, prompt+news)
+		result, err := pro.GenerateConfidence(ctx, prompt+news)
 		if err != nil {
-			fmt.Println("Error predicting confidence:", err)
+			fmt.Println("Error generating confidence:", err)
 			return
 		}
 		fmt.Println(result.Confidence)

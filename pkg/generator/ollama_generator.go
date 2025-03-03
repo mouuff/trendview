@@ -1,4 +1,4 @@
-package provider
+package generator
 
 import (
 	"context"
@@ -17,25 +17,25 @@ type Property struct {
 	Type string `json:"type"`
 }
 
-type OllamaProvider struct {
+type OllamaGenerator struct {
 	Model  string
 	Client *api.Client
 }
 
-func NewOllamaProvider() (*OllamaProvider, error) {
+func NewOllamaGenerator() (*OllamaGenerator, error) {
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &OllamaProvider{
+	return &OllamaGenerator{
 		Model:  "mistral",
 		Client: client,
 	}, nil
 }
 
-func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
+func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
@@ -56,7 +56,7 @@ func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (
 		return nil
 	}
 
-	err := c.Generate(ctx, prompt, formatSchema, respFunc)
+	err := c.generate(ctx, prompt, formatSchema, respFunc)
 
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (
 	return &result, nil
 }
 
-func (c *OllamaProvider) Generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
+func (c *OllamaGenerator) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
 	format, err := json.Marshal(formatSchema)
 	if err != nil {
 		return err
