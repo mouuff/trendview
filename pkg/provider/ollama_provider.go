@@ -64,8 +64,6 @@ func (c *OllamaProvider) PredictConfidence(ctx context.Context, prompt string) (
 	var result ConfidenceResult
 
 	respFunc := func(resp api.GenerateResponse) error {
-		// TODO remove println
-		fmt.Println(resp.Response)
 		err := json.Unmarshal([]byte(resp.Response), &result)
 		if err != nil {
 			return err
