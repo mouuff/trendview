@@ -1,2 +1,2 @@
 # TrendView
-View the trends using AI
+View trends using AI
