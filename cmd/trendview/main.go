@@ -9,15 +9,38 @@ import (
 	"github.com/ollama/ollama/api"
 )
 
+type Schema struct {
+	Type       string              `json:"type"`
+	Properties map[string]Property `json:"properties"`
+	Required   []string            `json:"required"`
+}
+
+type Property struct {
+	Type string `json:"type"`
+}
+
 type DataOut struct {
-	Temperature int `json:"temperature"`
+	Temperature string `json:"temperature"`
 }
 
 func main() {
 
-	p := DataOut{
-		Temperature: 0,
+	p := Schema{
+		Type: "object",
+		Properties: map[string]Property{
+			"capital": {
+				Type: "string",
+			},
+			"confidence": {
+				Type: "integer",
+			},
+		},
+		Required: []string{"capital", "confidence"},
 	}
+
+	//p := DataOut{
+	//	Temperature: "integer",
+	//}
 
 	// Step 2: Marshal the struct to JSON bytes
 	data, err := json.Marshal(p)
@@ -31,10 +54,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println(string(data))
+
 	req := &api.GenerateRequest{
 		Model:  "mistral",
-		Prompt: "What is the temperature of a monkey?",
-		Format: "json",
+		Prompt: "What is the capital of Norway?",
+		Format: data,
 
 		// set streaming to false
 		Stream: new(bool),
