@@ -1,4 +1,4 @@
-package pkg
+package provider
 
 type ConfidenceResult struct {
 	Confidence int `json:"confidence"`

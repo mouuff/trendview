@@ -1,4 +1,4 @@
-package pkg
+package provider
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type OllamaProvider struct {
 	Client *api.Client
 }
 
-func NewOllamaProvider(confidencePrompt string) (*OllamaProvider, error) {
+func NewOllamaProvider() (*OllamaProvider, error) {
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
