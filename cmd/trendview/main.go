@@ -55,4 +55,18 @@ func main() {
 		fmt.Println(result.Confidence)
 	}
 
+	// Print first few reports as example
+	for i, report := range reports {
+		result, err := pro.GenerateConfidence(ctx, prompt+report.Title)
+		if err != nil {
+			fmt.Println("Error generating confidence:", err)
+			return
+		}
+		fmt.Printf("Report %d:\n", i+1)
+		fmt.Printf("Title: %s\n", report.Title)
+		fmt.Printf("Date: %s\n", report.DateTime)
+		fmt.Printf("Confidence: %d\n", result.Confidence)
+		fmt.Println("---")
+	}
+
 }
