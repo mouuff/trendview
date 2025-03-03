@@ -5,9 +5,30 @@ import (
 	"fmt"
 
 	"github.com/mouuff/TrendView/pkg/generator"
+	"github.com/mouuff/TrendView/pkg/provider"
 )
 
 func main() {
+	provider := provider.NewGoogleNewsProvider()
+	reports, err := provider.GetReports()
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// Print first few reports as example
+	for i, report := range reports {
+		if i >= 3 { // Limit to 3 reports for brevity
+			break
+		}
+		fmt.Printf("Report %d:\n", i+1)
+		fmt.Printf("Title: %s\n", report.Title)
+		fmt.Printf("Date: %s\n", report.DateTime)
+		fmt.Printf("Link: %s\n", report.Link)
+		fmt.Printf("Content: %s\n", report.Content)
+		fmt.Println("---")
+	}
+
 	ctx := context.Background()
 	pro, err := generator.NewOllamaGenerator()
 
