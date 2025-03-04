@@ -17,9 +17,9 @@ type EnrichedFeedItem struct {
 }
 
 type TrendGenerator struct {
-	Feeds            []feed.FeedReader
-	Brain            brain.Brain
-	ConfidencePrompt string
+	Feeds                []feed.FeedReader
+	Brain                brain.Brain
+	ConfidenceBasePrompt string
 
 	// Internal variables:
 	items map[string]EnrichedFeedItem
@@ -88,13 +88,13 @@ func (tg *TrendGenerator) ReadFeeds() error {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) GenerateConfidenceScores(ctx context.Context) error {
-	if tg.ConfidencePrompt == "" {
+	if tg.ConfidenceBasePrompt == "" {
 		return nil
 	}
 
 	for _, item := range tg.items {
-		if item.Confidence == nil && tg.ConfidencePrompt != "" {
-			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidencePrompt)
+		if item.Confidence == nil {
+			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidenceBasePrompt+item.Title)
 
 			if err != nil {
 				log.Printf("Error generating confidence: %v\n", err)
