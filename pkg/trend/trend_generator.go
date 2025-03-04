@@ -9,12 +9,26 @@ import (
 	"github.com/mouuff/TrendView/pkg/itemstore"
 )
 
+// TrendGenerator is responsible for generating trends based on the provided context,
+// brain, storage, and feeds. It also maintains an internal state of items.
 type TrendGenerator struct {
-	Context              context.Context
-	Brain                brain.Brain
-	Storage              itemstore.ItemStore
-	Feeds                []feed.FeedReader
+	// Context: The context for managing request-scoped values, cancellation, and deadlines.
+	Context context.Context
+
+	// Brain: The brain component responsible for processing and analyzing data.
+	Brain brain.Brain
+
+	// Storage: The item store for storing and retrieving items.
+	Storage itemstore.ItemStore
+
+	// Feeds: A list of feed readers for reading data from various sources.
+	Feeds []feed.FeedReader
+
+	// ConfidenceBasePrompt: A base prompt used for generating confidence levels.
 	ConfidenceBasePrompt string
+
+	// ReGenerate: A flag indicating whether to regenerate trends.
+	ReGenerate bool
 
 	// Internal state
 	items map[string]*itemstore.ItemComposite
@@ -41,6 +55,7 @@ func (tg *TrendGenerator) Execute() error {
 	tg.readFeeds()
 	tg.generateConfidenceScores(tg.Context)
 
+	log.Printf("Saving %d items", len(tg.items))
 	return tg.Storage.Save(tg.items)
 }
 
@@ -74,7 +89,7 @@ func (tg *TrendGenerator) generateConfidenceScores(ctx context.Context) {
 	}
 
 	for _, item := range tg.items {
-		if item.Confidence == nil {
+		if item.Confidence == nil || tg.ReGenerate {
 			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidenceBasePrompt+item.Title)
 
 			if err != nil {
