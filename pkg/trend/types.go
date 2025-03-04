@@ -12,7 +12,7 @@ type EnrichedFeedItem struct {
 
 // TrendJsonStorage is the interface for storing and loading trend data
 type TrendStorage interface {
-	Load() (map[string]EnrichedFeedItem, error)
-	Save(items map[string]EnrichedFeedItem) error
+	Load() (map[string]*EnrichedFeedItem, error)
+	Save(items map[string]*EnrichedFeedItem) error
 	Exists() bool
 }

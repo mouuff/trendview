@@ -1,44 +1,57 @@
 package main
 
 import (
-	"context"
+	"errors"
 	"fmt"
-
-	"github.com/mouuff/TrendView/pkg/brain"
-	"github.com/mouuff/TrendView/pkg/feed"
+	"log"
+	"os"
 )
 
-func main() {
-	provider := feed.NewGoogleRssFeedReader("BTC+Bitcoin+news+when:1h")
-	feeditems, err := provider.GetFeedItems()
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
+// SubCommand defines the interface to implement new subcommands
+type SubCommand interface {
+	Init([]string) error
+	Run() error
+	Name() string
+}
+
+// RunSubCommand runs the right subcommand from the args
+// Example: args {"sign", "-name", "test"} will run the sign command
+// with {"-name", "test"} as parameters
+func RunSubCommand(args []string) error {
+
+	cmds := []SubCommand{
+		&GenerateTrend{},
 	}
 
-	ctx := context.Background()
-	brain, err := brain.NewOllamaBrain()
-
-	if err != nil {
-		fmt.Println("Error marshaling:", err)
-		return
-	}
-
-	// Based solely on the relevant news articles provided below, rate your confidence in investing in Bitcoin on a scale from 0 (no confidence, unwise) to 50 (neutral) to 100 (high confidence, good opportunity). Consider only market trends, regulatory changes, and significant economic factors that directly impact Bitcoin. If a news article is not relevant to these factors, score it as 50.
-	prompt := "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (high confidence, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: "
-
-	// Print first few reports as example
-	for i, feeditem := range feeditems {
-		result, err := brain.GenerateConfidence(ctx, prompt+feeditem.Title)
-		if err != nil {
-			fmt.Println("Error generating confidence:", err)
-			return
+	if len(args) < 1 {
+		cmdNames := ""
+		for i, cmd := range cmds {
+			if i > 0 {
+				cmdNames += ", "
+			}
+			cmdNames += cmd.Name()
 		}
+		return errors.New("You must pass a sub-command (" + cmdNames + ")")
 
-		fmt.Printf("Report %d:\n", i+1)
-		fmt.Printf("Title: %s\n", feeditem.Title)
-		fmt.Printf("Date: %s\n", feeditem.DateTime)
-		fmt.Printf("Confidence: %d\n", result.Confidence)
-		fmt.Println("---")
+	}
+
+	subcommand := args[0]
+
+	for _, cmd := range cmds {
+		if cmd.Name() == subcommand {
+			err := cmd.Init(args[1:])
+			if err != nil {
+				return err
+			}
+			return cmd.Run()
+		}
+	}
+
+	return fmt.Errorf("unknown subcommand: %s", subcommand)
+}
+
+func main() {
+	if err := RunSubCommand(os.Args[1:]); err != nil {
+		log.Fatal(err)
 	}
 }

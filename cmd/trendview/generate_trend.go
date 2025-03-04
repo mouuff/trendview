@@ -93,8 +93,8 @@ func (cmd *GenerateTrend) Run() error {
 	}
 
 	tg := &trend.TrendGenerator{
-		Brain:                brain,
 		Context:              context.Background(),
+		Brain:                brain,
 		Storage:              storage,
 		Feeds:                convertToFeedReaders(config.RssFeedReaders),
 		ConfidenceBasePrompt: config.ConfidenceBasePrompt,

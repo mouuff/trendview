@@ -16,7 +16,7 @@ type TrendGenerator struct {
 	ConfidenceBasePrompt string
 
 	// Internal state
-	items map[string]EnrichedFeedItem
+	items map[string]*EnrichedFeedItem
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -32,7 +32,7 @@ func (tg *TrendGenerator) Execute() error {
 		tg.items = items
 	} else {
 		log.Println("No existing data found, starting from scratch")
-		tg.items = make(map[string]EnrichedFeedItem)
+		tg.items = make(map[string]*EnrichedFeedItem)
 	}
 
 	tg.readFeeds()
@@ -57,7 +57,7 @@ func (tg *TrendGenerator) readFeeds() {
 
 			if item.GUID != "" {
 				if _, exists := tg.items[item.GUID]; !exists {
-					tg.items[item.GUID] = enrichedItem
+					tg.items[item.GUID] = &enrichedItem
 				}
 			}
 		}
