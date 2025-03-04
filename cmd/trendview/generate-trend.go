@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
 	"github.com/mouuff/TrendView/pkg/trend"
 )
@@ -81,15 +83,24 @@ func (cmd *GenerateTrend) Run() error {
 		return err
 	}
 
-	tg := &trend.TrendGenerator{
-		Feeds:                convertToFeedReaders(config.RssFeedReaders),
-		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
-		Brain:                nil,
+	storage := &trend.TrendJsonStorage{
+		Filename: cmd.datafile,
 	}
 
-	tg.Load(cmd.datafile)
+	brain, err := brain.NewOllamaBrain()
+	if err != nil {
+		return err
+	}
 
-	return nil
+	tg := &trend.TrendGenerator{
+		Brain:                brain,
+		Context:              context.Background(),
+		Storage:              storage,
+		Feeds:                convertToFeedReaders(config.RssFeedReaders),
+		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
+	}
+
+	return tg.Execute()
 }
 
 func printConfigurationTemplate() {

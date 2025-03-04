@@ -2,67 +2,47 @@ package trend
 
 import (
 	"context"
-	"encoding/json"
-	"io"
 	"log"
-	"os"
 
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
 )
 
-type EnrichedFeedItem struct {
-	feed.FeedItem
-	Confidence *brain.ConfidenceResult
-}
-
 type TrendGenerator struct {
-	Feeds                []feed.FeedReader
+	Context              context.Context
 	Brain                brain.Brain
+	Storage              TrendStorage
+	Feeds                []feed.FeedReader
 	ConfidenceBasePrompt string
 
-	// Internal variables:
+	// Internal state
 	items map[string]EnrichedFeedItem
 }
 
-// Load loads enriched feed items from a JSON file.
-func (tg *TrendGenerator) Load(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) Execute() error {
 
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
+	if tg.Storage.Exists() {
+		items, err := tg.Storage.Load()
 
-	var items map[string]EnrichedFeedItem
-	if err := json.Unmarshal(bytes, &items); err != nil {
-		return err
+		if err != nil {
+			return err
+		}
+
+		tg.items = items
+	} else {
+		log.Println("No existing data found, starting from scratch")
+		tg.items = make(map[string]EnrichedFeedItem)
 	}
 
-	tg.items = items
-	return nil
-}
+	tg.readFeeds()
+	tg.generateConfidenceScores(tg.Context)
 
-// Save saves enriched feed items to a JSON file.
-func (tg *TrendGenerator) Save(filename string) error {
-	bytes, err := json.Marshal(tg.items)
-	if err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(filename, bytes, 0644); err != nil {
-		return err
-	}
-
-	return nil
+	return tg.Storage.Save(tg.items)
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) ReadFeeds() error {
+func (tg *TrendGenerator) readFeeds() {
 	for _, feed := range tg.Feeds {
 		feedItems, err := feed.GetFeedItems()
 		if err != nil {
@@ -82,14 +62,12 @@ func (tg *TrendGenerator) ReadFeeds() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) GenerateConfidenceScores(ctx context.Context) error {
+func (tg *TrendGenerator) generateConfidenceScores(ctx context.Context) {
 	if tg.ConfidenceBasePrompt == "" {
-		return nil
+		return
 	}
 
 	for _, item := range tg.items {
@@ -102,8 +80,6 @@ func (tg *TrendGenerator) GenerateConfidenceScores(ctx context.Context) error {
 			}
 
 			item.Confidence = confidence
-
 		}
 	}
-	return nil
 }
