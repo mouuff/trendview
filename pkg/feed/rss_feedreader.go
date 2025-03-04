@@ -34,14 +34,6 @@ type RssFeedReader struct {
 	ShouldCleanHtml bool
 }
 
-func NewGoogleRssFeedReader(query string) *RssFeedReader {
-	url := fmt.Sprintf("https://news.google.com/rss/search?q=%s&hl=en-US&gl=US&ceid=US:en", query)
-	return &RssFeedReader{
-		Url:             url,
-		ShouldCleanHtml: true,
-	}
-}
-
 // cleanHTML removes HTML tags and extra whitespace from text
 func cleanHTML(html string) string {
 	// Remove HTML tags
