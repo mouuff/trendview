@@ -107,86 +107,114 @@ func getHtml(jsonContent string) string {
     const sortedEntries = Object.values(dataSet).sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
     const entries = Object.values(sortedEntries).filter((a) => a.ConfidenceResult.confidence != 50);
 
+    // Get unique sources
+    const sources = [...new Set(entries.map(item => item.Source))];
+
+    // Create a dropdown for filtering by source
+    const filterContainer = document.createElement('div');
+    filterContainer.style.textAlign = 'center';
+    filterContainer.style.marginBottom = '20px';
+    const filterLabel = document.createElement('label');
+    filterLabel.textContent = 'Filter by Source: ';
+    const filterSelect = document.createElement('select');
+    filterSelect.innerHTML = '<option value="all">All</option>' + sources.map(function(source) { return '<option value="' + source + '">' + source + '</option>'; }).join('');
+    filterContainer.appendChild(filterLabel);
+    filterContainer.appendChild(filterSelect);
+    document.querySelector('.container').insertBefore(filterContainer, document.querySelector('canvas'));
+
     // Prepare chart data points (using Confidence as the y-value)
-    const chartData = entries.map(item => ({
+    const prepareChartData = (source) => {
+      const filteredEntries = source === 'all' ? entries : entries.filter(item => item.Source === source);
+      return filteredEntries.map(item => ({
       x: new Date(item.DateTime),
       y: item.ConfidenceResult.confidence,
       title: item.Title,
       content: item.Content,
       link: item.Link
-    }));
+      }));
+    };
+
+    let chartData = prepareChartData('all');
 
     // Create the Chart.js scatter plot with a time x-axis
     const ctx = document.getElementById('myChart').getContext('2d');
-    const myChart = new Chart(ctx, {
+    let myChart = new Chart(ctx, {
       type: 'scatter',
       data: {
-        datasets: [{
-          label: 'Articles Confidence',
-          data: chartData,
-          backgroundColor: 'rgba(75, 192, 192, 0.7)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          pointRadius: 6,
-          pointHoverRadius: 8
-        }]
+      datasets: [{
+        label: 'Articles Confidence',
+        data: chartData,
+        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
       },
       options: {
-        responsive: true,
-        plugins: {
-          tooltip: {
-            callbacks: {
-              title: (tooltipItems) => {
-                return tooltipItems[0].raw.title;
-              },
-              label: (tooltipItem) => {
-                const dateStr = new Date(tooltipItem.raw.x).toLocaleString();
-                return 'Date: ' + dateStr + '\nConfidence: ' + tooltipItem.raw.y;
-              },
-              afterBody: (tooltipItems) => {
-                return 'Content: ' + tooltipItems[0].raw.content;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            type: 'time',
-            time: {
-              unit: 'minute'
-            },
-            title: {
-              display: true,
-              text: 'Date'
-            },
-            ticks: {
-              color: '#333'
-            },
-            grid: {
-              color: '#ccc'
-            }
+      responsive: true,
+      plugins: {
+        tooltip: {
+        callbacks: {
+          title: (tooltipItems) => {
+          return tooltipItems[0].raw.title;
           },
-          y: {
-            title: {
-              display: true,
-              text: 'Confidence'
-            },
-            ticks: {
-              color: '#333'
-            },
-            grid: {
-              color: '#ccc'
-            }
-          }
-        },
-        // Open the article link when a point is clicked
-        onClick: (e, activeElements) => {
-          if (activeElements.length) {
-            const idx = activeElements[0].index;
-            const point = chartData[idx];
-            window.open(point.link, '_blank');
+          label: (tooltipItem) => {
+          const dateStr = new Date(tooltipItem.raw.x).toLocaleString();
+          return 'Date: ' + dateStr + '\nConfidence: ' + tooltipItem.raw.y;
+          },
+          afterBody: (tooltipItems) => {
+          return 'Content: ' + tooltipItems[0].raw.content;
           }
         }
+        }
+      },
+      scales: {
+        x: {
+        type: 'time',
+        time: {
+          unit: 'minute'
+        },
+        title: {
+          display: true,
+          text: 'Date'
+        },
+        ticks: {
+          color: '#333'
+        },
+        grid: {
+          color: '#ccc'
+        }
+        },
+        y: {
+        title: {
+          display: true,
+          text: 'Confidence'
+        },
+        ticks: {
+          color: '#333'
+        },
+        grid: {
+          color: '#ccc'
+        }
+        }
+      },
+      // Open the article link when a point is clicked
+      onClick: (e, activeElements) => {
+        if (activeElements.length) {
+        const idx = activeElements[0].index;
+        const point = chartData[idx];
+        window.open(point.link, '_blank');
+        }
       }
+      }
+    });
+
+    // Update chart data when the filter changes
+    filterSelect.addEventListener('change', (e) => {
+      const selectedSource = e.target.value;
+      chartData = prepareChartData(selectedSource);
+      myChart.data.datasets[0].data = chartData;
+      myChart.update();
     });
   </script>
 </body>
