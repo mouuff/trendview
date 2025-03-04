@@ -7,8 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/mouuff/TrendView/internal"
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
 	"github.com/mouuff/TrendView/pkg/itemstore"
@@ -27,27 +27,6 @@ type GenerateTrend struct {
 
 	config   string
 	datafile string
-}
-
-func ReadFromJson(path string, dataOut interface{}) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal([]byte(data), dataOut); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func convertToFeedReaders(rssFeedReaders []feed.RssFeedReader) []feed.FeedReader {
-	feedReaders := make([]feed.FeedReader, len(rssFeedReaders))
-	for i, rssFeedReader := range rssFeedReaders {
-		feedReaders[i] = &rssFeedReader
-	}
-	return feedReaders
 }
 
 // Name gets the name of the command
@@ -79,7 +58,7 @@ func (cmd *GenerateTrend) Run() error {
 	}
 
 	var config TrendGeneratorConfig
-	err := ReadFromJson(cmd.config, &config)
+	err := internal.ReadFromJson(cmd.config, &config)
 	if err != nil {
 		return err
 	}
@@ -97,7 +76,7 @@ func (cmd *GenerateTrend) Run() error {
 		Context:              context.Background(),
 		Brain:                brain,
 		Storage:              storage,
-		Feeds:                convertToFeedReaders(config.RssFeedReaders),
+		Feeds:                internal.ConvertToFeedReaders(config.RssFeedReaders),
 		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
 	}
 
