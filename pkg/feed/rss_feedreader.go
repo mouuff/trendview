@@ -25,6 +25,7 @@ type Item struct {
 	PubDate     string `xml:"pubDate"`
 	Link        string `xml:"link"`
 	GUID        string `xml:"guid"`
+	Source      string `xml:"source"`
 }
 
 // RssFeedReader is a feed provider that fetches RSS feeds
@@ -51,8 +52,7 @@ func cleanHTML(html string) string {
 	text = strings.Join(strings.Fields(text), " ")
 
 	// Remove any remaining special markup
-	text = strings.ReplaceAll(text, "&nbsp;&nbsp;", "-") // Replace non-breaking spaces
-	text = strings.ReplaceAll(text, "&nbsp;", " ")       // Replace non-breaking spaces
+	text = strings.ReplaceAll(text, "&nbsp;", " ") // Replace non-breaking spaces
 	return text
 }
 
@@ -108,6 +108,7 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 			DateTime: *parsedDate,
 			Link:     item.Link,
 			GUID:     item.GUID,
+			Source:   item.Source,
 		}
 		reports = append(reports, report)
 	}

@@ -8,6 +8,7 @@ type FeedItem struct {
 	DateTime time.Time
 	Link     string
 	GUID     string
+	Source   string
 }
 
 type FeedReader interface {
