@@ -51,7 +51,8 @@ func cleanHTML(html string) string {
 	text = strings.Join(strings.Fields(text), " ")
 
 	// Remove any remaining special markup
-	text = strings.ReplaceAll(text, "&nbsp;", " ") // Replace non-breaking spaces
+	text = strings.ReplaceAll(text, "&nbsp;&nbsp;", "-") // Replace non-breaking spaces
+	text = strings.ReplaceAll(text, "&nbsp;", " ")       // Replace non-breaking spaces
 	return text
 }
 
