@@ -1,4 +1,4 @@
-package trend
+package itemstore
 
 import (
 	"encoding/json"
@@ -6,12 +6,12 @@ import (
 	"os"
 )
 
-type TrendJsonStorage struct {
+type JsonItemStore struct {
 	Filename string
 }
 
 // Load loads enriched feed items from a JSON file.
-func (tg *TrendJsonStorage) Load() (map[string]*EnrichedFeedItem, error) {
+func (tg *JsonItemStore) Load() (map[string]*ItemComposite, error) {
 	file, err := os.Open(tg.Filename)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (tg *TrendJsonStorage) Load() (map[string]*EnrichedFeedItem, error) {
 		return nil, err
 	}
 
-	var items map[string]*EnrichedFeedItem
+	var items map[string]*ItemComposite
 	if err := json.Unmarshal(bytes, &items); err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (tg *TrendJsonStorage) Load() (map[string]*EnrichedFeedItem, error) {
 }
 
 // Save saves enriched feed items to a JSON file.
-func (s *TrendJsonStorage) Save(items map[string]*EnrichedFeedItem) error {
+func (s *JsonItemStore) Save(items map[string]*ItemComposite) error {
 	bytes, err := json.Marshal(items)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (s *TrendJsonStorage) Save(items map[string]*EnrichedFeedItem) error {
 }
 
 // FileExists checks if the data file exists.
-func (s *TrendJsonStorage) Exists() bool {
+func (s *JsonItemStore) Exists() bool {
 	_, err := os.Stat(s.Filename)
 	return !os.IsNotExist(err)
 }

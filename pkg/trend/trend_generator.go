@@ -6,17 +6,18 @@ import (
 
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
+	"github.com/mouuff/TrendView/pkg/itemstore"
 )
 
 type TrendGenerator struct {
 	Context              context.Context
 	Brain                brain.Brain
-	Storage              TrendStorage
+	Storage              itemstore.ItemStore
 	Feeds                []feed.FeedReader
 	ConfidenceBasePrompt string
 
 	// Internal state
-	items map[string]*EnrichedFeedItem
+	items map[string]*itemstore.ItemComposite
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -30,9 +31,11 @@ func (tg *TrendGenerator) Execute() error {
 		}
 
 		tg.items = items
+
+		log.Printf("Loaded %d existing items", len(tg.items))
 	} else {
-		log.Println("No existing data found, starting from scratch")
-		tg.items = make(map[string]*EnrichedFeedItem)
+		log.Printf("No existing data found, starting from scratch")
+		tg.items = make(map[string]*itemstore.ItemComposite)
 	}
 
 	tg.readFeeds()
@@ -51,7 +54,7 @@ func (tg *TrendGenerator) readFeeds() {
 		}
 
 		for _, item := range feedItems {
-			enrichedItem := EnrichedFeedItem{
+			enrichedItem := itemstore.ItemComposite{
 				FeedItem: item,
 			}
 

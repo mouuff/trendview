@@ -11,6 +11,7 @@ import (
 
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
+	"github.com/mouuff/TrendView/pkg/itemstore"
 	"github.com/mouuff/TrendView/pkg/trend"
 )
 
@@ -83,13 +84,13 @@ func (cmd *GenerateTrend) Run() error {
 		return err
 	}
 
-	storage := &trend.TrendJsonStorage{
-		Filename: cmd.datafile,
-	}
-
 	brain, err := brain.NewOllamaBrain()
 	if err != nil {
 		return err
+	}
+
+	storage := &itemstore.JsonItemStore{
+		Filename: cmd.datafile,
 	}
 
 	tg := &trend.TrendGenerator{
