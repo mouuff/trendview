@@ -52,7 +52,7 @@ func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string)
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)
 		if err != nil {
-			return fmt.Errorf("failed to parse response from ollama: %v", err)
+			return fmt.Errorf("failed to parse response: %v", err)
 		}
 		return nil
 	}
