@@ -8,11 +8,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/mouuff/TrendView/pkg/feedreader"
+	"github.com/mouuff/TrendView/pkg/feed"
 )
 
 type TrendGeneratorConfig struct {
-	RssFeedReaders       []feedreader.RssFeedReader
+	RssFeedReaders       []feed.RssFeedReader
 	ConfidenceBasePrompt string
 }
 
@@ -77,7 +77,7 @@ func (cmd *GenerateTrend) Run() error {
 
 func printConfigurationTemplate() {
 	configTemplate := &TrendGeneratorConfig{
-		RssFeedReaders: []feedreader.RssFeedReader{
+		RssFeedReaders: []feed.RssFeedReader{
 			{
 				Url:             "https://news.google.com/rss/search?q=BTC+Bitcoin+news+when:1h&hl=en-US&gl=US&ceid=US:en",
 				ShouldCleanHtml: true,

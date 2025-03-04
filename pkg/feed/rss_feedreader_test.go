@@ -1,11 +1,11 @@
-package feedreader_test
+package feed_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/mouuff/TrendView/pkg/feedreader"
+	"github.com/mouuff/TrendView/pkg/feed"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +36,7 @@ func TestGetFeedItems(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://news.google.com/rss/search?q=test&hl=en-US&gl=US&ceid=US:en",
 		httpmock.NewStringResponder(200, mockRSS))
 
-	provider := feedreader.NewGoogleRssFeedReader("test")
+	provider := feed.NewGoogleRssFeedReader("test")
 	items, err := provider.GetFeedItems()
 
 	assert.NoError(t, err)
@@ -78,7 +78,7 @@ func TestGetFeedItemsWithInvalidDate(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://news.google.com/rss/search?q=test&hl=en-US&gl=US&ceid=US:en",
 		httpmock.NewStringResponder(200, mockRSS))
 
-	provider := feedreader.NewGoogleRssFeedReader("test")
+	provider := feed.NewGoogleRssFeedReader("test")
 	items, err := provider.GetFeedItems()
 
 	assert.NoError(t, err)

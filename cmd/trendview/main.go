@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/mouuff/TrendView/pkg/brain"
-	"github.com/mouuff/TrendView/pkg/feedreader"
+	"github.com/mouuff/TrendView/pkg/feed"
 )
 
 func main() {
-	provider := feedreader.NewGoogleRssFeedReader("BTC+Bitcoin+news+when:1h")
+	provider := feed.NewGoogleRssFeedReader("BTC+Bitcoin+news+when:1h")
 	feeditems, err := provider.GetFeedItems()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
