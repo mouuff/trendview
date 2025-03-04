@@ -1,4 +1,4 @@
-package generator
+package brain
 
 import "context"
 

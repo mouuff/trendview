@@ -1,4 +1,4 @@
-package generator
+package brain
 
 import (
 	"context"
@@ -18,25 +18,25 @@ type Property struct {
 	Type string `json:"type"`
 }
 
-type OllamaGenerator struct {
+type OllamaBrain struct {
 	Model  string
 	Client *api.Client
 }
 
-func NewOllamaGenerator() (*OllamaGenerator, error) {
+func NewOllamaBrain() (*OllamaBrain, error) {
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &OllamaGenerator{
+	return &OllamaBrain{
 		Model:  "mistral",
 		Client: client,
 	}, nil
 }
 
-func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
+func (c *OllamaBrain) GenerateConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
@@ -66,7 +66,7 @@ func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string)
 	return &result, nil
 }
 
-func (c *OllamaGenerator) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
+func (c *OllamaBrain) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
 	format, err := json.Marshal(formatSchema)
 	if err != nil {
 		return fmt.Errorf("failed to marshal the format schema: %v", err)

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feedreader"
-	"github.com/mouuff/TrendView/pkg/generator"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	pro, err := generator.NewOllamaGenerator()
+	brain, err := brain.NewOllamaBrain()
 
 	if err != nil {
 		fmt.Println("Error marshaling:", err)
@@ -29,7 +29,7 @@ func main() {
 
 	// Print first few reports as example
 	for i, feeditem := range feeditems {
-		result, err := pro.GenerateConfidence(ctx, prompt+feeditem.Title)
+		result, err := brain.GenerateConfidence(ctx, prompt+feeditem.Title)
 		if err != nil {
 			fmt.Println("Error generating confidence:", err)
 			return
