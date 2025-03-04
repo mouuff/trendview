@@ -50,7 +50,7 @@ func (cmd *ConvertToCsv) Run() error {
 	for _, item := range data {
 		formatedDate := item.DateTime.Format("2006-01-02 15:04:05")
 		formatedTitle := strings.ReplaceAll(item.Title, ",", ";")
-		fmt.Printf("%s,%d,%s\n", formatedDate, item.Confidence.Confidence, formatedTitle)
+		fmt.Printf("%s,%d,%s\n", formatedDate, item.ConfidenceResult.Confidence, formatedTitle)
 	}
 
 	return nil

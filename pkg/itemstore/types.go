@@ -8,7 +8,7 @@ import (
 // ItemComposite is a feed item with all the generated results
 type ItemComposite struct {
 	feed.FeedItem
-	Confidence *brain.ConfidenceResult
+	ConfidenceResult *brain.ConfidenceResult
 }
 
 // ItemStore is the interface for storing and loading items
