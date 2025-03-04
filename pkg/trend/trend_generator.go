@@ -1,8 +1,10 @@
 package trend
 
 import (
+	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"os"
 
 	"github.com/mouuff/TrendView/pkg/brain"
@@ -15,7 +17,7 @@ type EnrichedFeedItem struct {
 }
 
 type TrendGenerator struct {
-	Feeds            []feed.RssFeedReader
+	Feeds            []feed.FeedReader
 	Brain            brain.Brain
 	ConfidencePrompt string
 
@@ -56,5 +58,52 @@ func (tg *TrendGenerator) Save(filename string) error {
 		return err
 	}
 
+	return nil
+}
+
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) ReadFeeds() error {
+	for _, feed := range tg.Feeds {
+		feedItems, err := feed.GetFeedItems()
+		if err != nil {
+			log.Printf("Error reading feed: %v\n", err)
+			continue
+		}
+
+		for _, item := range feedItems {
+			enrichedItem := EnrichedFeedItem{
+				FeedItem: item,
+			}
+
+			if item.GUID != "" {
+				if _, exists := tg.items[item.GUID]; !exists {
+					tg.items[item.GUID] = enrichedItem
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) GenerateConfidenceScores(ctx context.Context) error {
+	if tg.ConfidencePrompt == "" {
+		return nil
+	}
+
+	for _, item := range tg.items {
+		if item.Confidence == nil && tg.ConfidencePrompt != "" {
+			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidencePrompt)
+
+			if err != nil {
+				log.Printf("Error generating confidence: %v\n", err)
+				continue
+			}
+
+			item.Confidence = confidence
+
+		}
+	}
 	return nil
 }
