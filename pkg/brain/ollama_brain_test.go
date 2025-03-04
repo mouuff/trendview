@@ -27,7 +27,7 @@ func TestOllamaBrainGenerateConfidence(t *testing.T) {
 func testGenerateConfidence(
 	t *testing.T,
 	ctx context.Context,
-	gen brain.ConfidenceGenerator,
+	gen brain.Brain,
 	prompt string,
 	expectedMinConfidence, expectedMaxConfidence int) {
 	result, err := gen.GenerateConfidence(ctx, prompt)

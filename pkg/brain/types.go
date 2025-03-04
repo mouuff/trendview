@@ -6,6 +6,6 @@ type ConfidenceResult struct {
 	Confidence int `json:"confidence"`
 }
 
-type ConfidenceGenerator interface {
+type Brain interface {
 	GenerateConfidence(ctx context.Context, news string) (*ConfidenceResult, error)
 }
