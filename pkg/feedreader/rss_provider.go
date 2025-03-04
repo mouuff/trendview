@@ -1,4 +1,4 @@
-package provider
+package feedreader
 
 import (
 	"encoding/xml"
@@ -27,13 +27,15 @@ type Item struct {
 	GUID        string `xml:"guid"`
 }
 
-type GoogleNewsProvider struct {
-	url string
+type RssProvider struct {
+	Url             string
+	ShouldCleanHtml bool
 }
 
-func NewGoogleNewsProvider() *GoogleNewsProvider {
-	return &GoogleNewsProvider{
-		url: "https://news.google.com/rss/search?q=bitcoin&hl=en-US&gl=US&ceid=US:en",
+func NewGoogleRssProvider(query string) *RssProvider {
+	url := fmt.Sprintf("https://news.google.com/rss/search?q=%s&hl=en-US&gl=US&ceid=US:en", query)
+	return &RssProvider{
+		Url: url,
 	}
 }
 
@@ -66,8 +68,8 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
-func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
-	resp, err := http.Get(p.url)
+func (p *RssProvider) GetReports() ([]Report, error) {
+	resp, err := http.Get(p.Url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch RSS feed: %v", err)
 	}
@@ -92,9 +94,14 @@ func (p *GoogleNewsProvider) GetReports() ([]Report, error) {
 			continue
 		}
 
+		description := item.Description
+		if p.ShouldCleanHtml {
+			description = cleanHTML(description)
+		}
+
 		report := Report{
 			Title:    item.Title,
-			Content:  cleanHTML(item.Description),
+			Content:  description,
 			DateTime: parsedDate,
 			Link:     item.Link,
 			GUID:     item.GUID,

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mouuff/TrendView/pkg/feedreader"
 	"github.com/mouuff/TrendView/pkg/generator"
-	"github.com/mouuff/TrendView/pkg/provider"
 )
 
 func main() {
-	provider := provider.NewGoogleNewsProvider()
+	provider := feedreader.NewGoogleRssProvider("BTC+Bitcoin+news+when:1h")
 	reports, err := provider.GetReports()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

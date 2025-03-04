@@ -1,4 +1,4 @@
-package provider
+package feedreader
 
 import "time"
 
