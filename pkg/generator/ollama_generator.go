@@ -3,6 +3,7 @@ package generator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/ollama/ollama/api"
 )
@@ -51,7 +52,7 @@ func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string)
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to parse response from ollama: %v", err)
 		}
 		return nil
 	}
@@ -59,7 +60,7 @@ func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string)
 	err := c.generate(ctx, prompt, formatSchema, respFunc)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate confidence: %v", err)
 	}
 
 	return &result, nil
@@ -68,7 +69,7 @@ func (c *OllamaGenerator) GenerateConfidence(ctx context.Context, prompt string)
 func (c *OllamaGenerator) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
 	format, err := json.Marshal(formatSchema)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal the format schema: %v", err)
 	}
 
 	req := &api.GenerateRequest{
@@ -82,7 +83,7 @@ func (c *OllamaGenerator) generate(ctx context.Context, prompt string, formatSch
 
 	err = c.Client.Generate(ctx, req, fn)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate response: %v", err)
 	}
 
 	return nil

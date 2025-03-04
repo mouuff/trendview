@@ -2,14 +2,14 @@ package feedreader
 
 import "time"
 
-type Report struct {
+type FeedItem struct {
 	Title    string
 	Content  string
-	DateTime *time.Time
+	DateTime time.Time
 	Link     string
 	GUID     string
 }
 
-type ReportProvider interface {
-	GetReports() ([]Report, error)
+type FeedReader interface {
+	GetFeedItems() ([]FeedItem, error)
 }

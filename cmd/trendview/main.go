@@ -10,22 +10,22 @@ import (
 
 func main() {
 	provider := feedreader.NewGoogleRssProvider("BTC+Bitcoin+news+when:1h")
-	reports, err := provider.GetReports()
+	feeditems, err := provider.GetFeedItems()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
 
 	// Print first few reports as example
-	for i, report := range reports {
+	for i, feeditem := range feeditems {
 		if i >= 5 {
 			break
 		}
 		fmt.Printf("Report %d:\n", i+1)
-		fmt.Printf("Title: %s\n", report.Title)
-		fmt.Printf("Date: %s\n", report.DateTime)
-		fmt.Printf("Link: %s\n", report.Link)
-		fmt.Printf("Content: %s\n", report.Content)
+		fmt.Printf("Title: %s\n", feeditem.Title)
+		fmt.Printf("Date: %s\n", feeditem.DateTime)
+		fmt.Printf("Link: %s\n", feeditem.Link)
+		fmt.Printf("Content: %s\n", feeditem.Content)
 		fmt.Println("---")
 	}
 
@@ -58,16 +58,16 @@ func main() {
 	}
 
 	// Print first few reports as example
-	for i, report := range reports {
-		result, err := pro.GenerateConfidence(ctx, prompt+report.Title)
+	for i, feeditem := range feeditems {
+		result, err := pro.GenerateConfidence(ctx, prompt+feeditem.Title)
 		if err != nil {
 			fmt.Println("Error generating confidence:", err)
 			return
 		}
 
 		fmt.Printf("Report %d:\n", i+1)
-		fmt.Printf("Title: %s\n", report.Title)
-		fmt.Printf("Date: %s\n", report.DateTime)
+		fmt.Printf("Title: %s\n", feeditem.Title)
+		fmt.Printf("Date: %s\n", feeditem.DateTime)
 		fmt.Printf("Confidence: %d\n", result.Confidence)
 		fmt.Println("---")
 	}

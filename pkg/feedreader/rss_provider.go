@@ -27,6 +27,7 @@ type Item struct {
 	GUID        string `xml:"guid"`
 }
 
+// RssProvider is a feed provider that fetches RSS feeds
 type RssProvider struct {
 	Url             string
 	ShouldCleanHtml bool
@@ -35,7 +36,8 @@ type RssProvider struct {
 func NewGoogleRssProvider(query string) *RssProvider {
 	url := fmt.Sprintf("https://news.google.com/rss/search?q=%s&hl=en-US&gl=US&ceid=US:en", query)
 	return &RssProvider{
-		Url: url,
+		Url:             url,
+		ShouldCleanHtml: true,
 	}
 }
 
@@ -68,7 +70,7 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
-func (p *RssProvider) GetReports() ([]Report, error) {
+func (p *RssProvider) GetFeedItems() ([]FeedItem, error) {
 	resp, err := http.Get(p.Url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch RSS feed: %v", err)
@@ -86,7 +88,7 @@ func (p *RssProvider) GetReports() ([]Report, error) {
 		return nil, fmt.Errorf("failed to parse RSS feed: %v", err)
 	}
 
-	reports := make([]Report, 0, len(rss.Channel.Items))
+	reports := make([]FeedItem, 0, len(rss.Channel.Items))
 	for _, item := range rss.Channel.Items {
 		parsedDate, err := parsePubDate(item.PubDate)
 		if err != nil {
@@ -99,10 +101,10 @@ func (p *RssProvider) GetReports() ([]Report, error) {
 			description = cleanHTML(description)
 		}
 
-		report := Report{
+		report := FeedItem{
 			Title:    item.Title,
 			Content:  description,
-			DateTime: parsedDate,
+			DateTime: *parsedDate,
 			Link:     item.Link,
 			GUID:     item.GUID,
 		}
