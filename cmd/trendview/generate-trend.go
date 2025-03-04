@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/mouuff/TrendView/pkg/feed"
+	"github.com/mouuff/TrendView/pkg/trend"
 )
 
 type TrendGeneratorConfig struct {
@@ -21,8 +22,8 @@ type TrendGeneratorConfig struct {
 type GenerateTrend struct {
 	flagSet *flag.FlagSet
 
-	config string
-	outDir string
+	config   string
+	datafile string
 }
 
 func ReadFromJson(path string, dataOut interface{}) error {
@@ -38,6 +39,14 @@ func ReadFromJson(path string, dataOut interface{}) error {
 	return nil
 }
 
+func convertToFeedReaders(rssFeedReaders []feed.RssFeedReader) []feed.FeedReader {
+	feedReaders := make([]feed.FeedReader, len(rssFeedReaders))
+	for i, rssFeedReader := range rssFeedReaders {
+		feedReaders[i] = &rssFeedReader
+	}
+	return feedReaders
+}
+
 // Name gets the name of the command
 func (cmd *GenerateTrend) Name() string {
 	return "generate-trend"
@@ -47,7 +56,7 @@ func (cmd *GenerateTrend) Name() string {
 func (cmd *GenerateTrend) Init(args []string) error {
 	cmd.flagSet = flag.NewFlagSet(cmd.Name(), flag.ExitOnError)
 	cmd.flagSet.StringVar(&cmd.config, "config", "", "configuration file (required)")
-	cmd.flagSet.StringVar(&cmd.outDir, "outdir", "", "output directory (required)")
+	cmd.flagSet.StringVar(&cmd.datafile, "datafile", "", "file used to load and store data (required)")
 	return cmd.flagSet.Parse(args)
 }
 
@@ -61,9 +70,9 @@ func (cmd *GenerateTrend) Run() error {
 		printConfigurationTemplate()
 		return errors.New("-config parameter required")
 	}
-	if cmd.outDir == "" {
-		log.Println("Please specify an output directory using -outdir")
-		return errors.New("-outdir parameter required")
+	if cmd.datafile == "" {
+		log.Println("Please specify a data file using -datafile (e.g. -datafile data.json)")
+		return errors.New("-datafile parameter required")
 	}
 
 	var config TrendGeneratorConfig
@@ -71,6 +80,14 @@ func (cmd *GenerateTrend) Run() error {
 	if err != nil {
 		return err
 	}
+
+	tg := &trend.TrendGenerator{
+		Feeds:                convertToFeedReaders(config.RssFeedReaders),
+		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
+		Brain:                nil,
+	}
+
+	tg.Load(cmd.datafile)
 
 	return nil
 }
