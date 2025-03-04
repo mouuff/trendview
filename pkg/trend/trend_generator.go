@@ -90,7 +90,7 @@ func (tg *TrendGenerator) generateConfidenceScores(ctx context.Context) {
 
 	for _, item := range tg.items {
 		if item.ConfidenceResult == nil || tg.ReGenerate {
-			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidenceBasePrompt+item.Title)
+			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidenceBasePrompt+item.Content)
 
 			if err != nil {
 				log.Printf("Error generating confidence: %v\n", err)

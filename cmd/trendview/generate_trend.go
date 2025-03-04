@@ -29,6 +29,7 @@ type GenerateTrend struct {
 	config   string
 	datafile string
 	loop     bool
+	regen    bool
 }
 
 // Name gets the name of the command
@@ -41,7 +42,8 @@ func (cmd *GenerateTrend) Init(args []string) error {
 	cmd.flagSet = flag.NewFlagSet(cmd.Name(), flag.ExitOnError)
 	cmd.flagSet.StringVar(&cmd.config, "config", "", "configuration file (required)")
 	cmd.flagSet.StringVar(&cmd.datafile, "datafile", "", "file used to load and store data (required)")
-	cmd.flagSet.BoolVar(&cmd.loop, "loop", false, "should we loop forever and regenerate trends")
+	cmd.flagSet.BoolVar(&cmd.loop, "loop", false, "should we loop forever")
+	cmd.flagSet.BoolVar(&cmd.regen, "regen", false, "should we regenerate trends")
 	return cmd.flagSet.Parse(args)
 }
 
@@ -81,6 +83,7 @@ func (cmd *GenerateTrend) Run() error {
 		Storage:              storage,
 		Feeds:                internal.ConvertToFeedReaders(config.RssFeedReaders),
 		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
+		ReGenerate:           cmd.regen,
 	}
 
 	if cmd.loop {
