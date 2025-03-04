@@ -36,7 +36,7 @@ func TestGetFeedItems(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://news.google.com/rss/search?q=test&hl=en-US&gl=US&ceid=US:en",
 		httpmock.NewStringResponder(200, mockRSS))
 
-	provider := feedreader.NewGoogleRssProvider("test")
+	provider := feedreader.NewGoogleRssFeedReader("test")
 	items, err := provider.GetFeedItems()
 
 	assert.NoError(t, err)
@@ -78,7 +78,7 @@ func TestGetFeedItemsWithInvalidDate(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://news.google.com/rss/search?q=test&hl=en-US&gl=US&ceid=US:en",
 		httpmock.NewStringResponder(200, mockRSS))
 
-	provider := feedreader.NewGoogleRssProvider("test")
+	provider := feedreader.NewGoogleRssFeedReader("test")
 	items, err := provider.GetFeedItems()
 
 	assert.NoError(t, err)

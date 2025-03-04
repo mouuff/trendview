@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	provider := feedreader.NewGoogleRssProvider("BTC+Bitcoin+news+when:1h")
+	provider := feedreader.NewGoogleRssFeedReader("BTC+Bitcoin+news+when:1h")
 	feeditems, err := provider.GetFeedItems()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

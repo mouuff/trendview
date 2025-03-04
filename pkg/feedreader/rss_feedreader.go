@@ -27,15 +27,15 @@ type Item struct {
 	GUID        string `xml:"guid"`
 }
 
-// RssProvider is a feed provider that fetches RSS feeds
-type RssProvider struct {
+// RssFeedReader is a feed provider that fetches RSS feeds
+type RssFeedReader struct {
 	Url             string
 	ShouldCleanHtml bool
 }
 
-func NewGoogleRssProvider(query string) *RssProvider {
+func NewGoogleRssFeedReader(query string) *RssFeedReader {
 	url := fmt.Sprintf("https://news.google.com/rss/search?q=%s&hl=en-US&gl=US&ceid=US:en", query)
-	return &RssProvider{
+	return &RssFeedReader{
 		Url:             url,
 		ShouldCleanHtml: true,
 	}
@@ -70,7 +70,7 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
-func (p *RssProvider) GetFeedItems() ([]FeedItem, error) {
+func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 	resp, err := http.Get(p.Url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch RSS feed: %v", err)
