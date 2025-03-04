@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mouuff/TrendView/internal"
 	"github.com/mouuff/TrendView/pkg/brain"
@@ -80,6 +81,13 @@ func (cmd *GenerateTrend) Run() error {
 		Storage:              storage,
 		Feeds:                internal.ConvertToFeedReaders(config.RssFeedReaders),
 		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
+	}
+
+	if cmd.loop {
+		for {
+			tg.Execute()
+			time.Sleep(5 * time.Minute)
+		}
 	}
 
 	return tg.Execute()
