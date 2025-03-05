@@ -49,36 +49,35 @@ func (cmd *ConvertToCsv) Run() error {
 		return err
 	}
 
-	// TODO set the max range of identifiers
 	identifiers := computeIdentifiers(data)
 
 	fmt.Printf("%s", "Date")
 
 	for _, identifier := range identifiers {
 
-		fmt.Printf(",%s", identifier)
+		fmt.Printf("\t%s", identifier)
 
 	}
 
-	fmt.Printf(",Title\n")
+	fmt.Printf("\tTitle\n")
 
 	for _, item := range data {
 		formatedDate := item.DateTime.Format("2006-01-02 15:04:05")
-		formatedTitle := strings.ReplaceAll(item.Title, ",", ";")
+		formatedTitle := strings.ReplaceAll(item.Title, "\t", " ")
 
 		fmt.Printf("%s", formatedDate)
 
 		for _, identifier := range identifiers {
 			ratingResult, exists := item.Results[identifier]
 			if !exists {
-				fmt.Printf(",")
+				fmt.Printf("\t")
 			} else {
-				fmt.Printf(",%d", ratingResult.Rating)
+				fmt.Printf("\t%d", ratingResult.Rating)
 			}
 
 		}
 
-		fmt.Printf(",%s\n", formatedTitle)
+		fmt.Printf("\t%s\n", formatedTitle)
 	}
 
 	return nil
