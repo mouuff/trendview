@@ -107,7 +107,7 @@ func printConfigurationTemplate() {
 		RatingPrompts: []trend.RatingPrompt{
 			{
 				Identifier: "BitcoinConfidence",
-				BasePrompt: "Based solely on the news below, rate your rating in investing in Bitcoin from 0 (no rating, unwise) to 50 (neutral) to 100 (high rating, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
+				BasePrompt: "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
 			},
 		},
 	}
