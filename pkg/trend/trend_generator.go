@@ -110,7 +110,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 		return fmt.Errorf("variable Identifier is required for rating prompt")
 	}
 
-	if item.Results == nil {
+	if item.Results == nil || tg.ReGenerate {
 		item.Results = make(map[string]*brain.RatingResult)
 	}
 
