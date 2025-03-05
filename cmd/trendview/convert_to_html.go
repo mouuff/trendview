@@ -49,14 +49,7 @@ func (cmd *ConvertToHtml) Run() error {
 	}
 
 	// Filter out data where the rating is 50
-	filteredData := make(map[string]*itemstore.ItemComposite)
-	for key, value := range data {
-		if value.RatingResult.Rating != 50 {
-			filteredData[key] = value
-		}
-	}
-
-	bytes, err := json.Marshal(filteredData)
+	bytes, err := json.Marshal(data)
 
 	if err != nil {
 		return err

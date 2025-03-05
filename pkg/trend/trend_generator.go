@@ -2,12 +2,18 @@ package trend
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
 	"github.com/mouuff/TrendView/pkg/itemstore"
 )
+
+type RatingPrompt struct {
+	Identifier string
+	BasePrompt string
+}
 
 // TrendGenerator is responsible for generating trends based on the provided context,
 // brain, storage, and feeds. It also maintains an internal state of items.
@@ -24,8 +30,8 @@ type TrendGenerator struct {
 	// Feeds: A list of feed readers for reading data from various sources.
 	Feeds []feed.FeedReader
 
-	// RatingBasePrompt: A base prompt used for generating rating levels.
-	RatingBasePrompt string
+	// RatingPrompts: A base prompt used for generating rating levels.
+	RatingPrompts []RatingPrompt
 
 	// ReGenerate: A flag indicating whether to regenerate trends.
 	ReGenerate bool
@@ -84,20 +90,41 @@ func (tg *TrendGenerator) readFeeds() {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
-	if tg.RatingBasePrompt == "" {
-		return
-	}
-
 	for _, item := range tg.items {
-		if item.RatingResult == nil || tg.ReGenerate {
-			rating, err := tg.Brain.GenerateRating(ctx, tg.RatingBasePrompt+item.Content)
-
+		for _, ratingPrompt := range tg.RatingPrompts {
+			err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
 			if err != nil {
 				log.Printf("Error generating rating: %v\n", err)
 				continue
 			}
-
-			item.RatingResult = rating
 		}
 	}
+}
+
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingPrompt RatingPrompt, item *itemstore.ItemComposite) error {
+	if ratingPrompt.BasePrompt == "" {
+		return fmt.Errorf("variable BasePrompt is required for rating prompt")
+	}
+	if ratingPrompt.Identifier == "" {
+		return fmt.Errorf("variable Identifier is required for rating prompt")
+	}
+
+	if item.Results == nil {
+		item.Results = make(map[string]*brain.RatingResult)
+	}
+
+	_, resultExists := item.Results[ratingPrompt.Identifier]
+
+	if !resultExists || tg.ReGenerate {
+		rating, err := tg.Brain.GenerateRating(ctx, ratingPrompt.BasePrompt+item.Content)
+
+		if err != nil {
+			return err
+		}
+
+		item.Results[ratingPrompt.Identifier] = rating
+	}
+
+	return nil
 }

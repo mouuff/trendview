@@ -17,8 +17,8 @@ import (
 )
 
 type TrendGeneratorConfig struct {
-	RssFeedReaders   []feed.RssFeedReader
-	RatingBasePrompt string
+	RssFeedReaders []feed.RssFeedReader
+	RatingPrompts  []trend.RatingPrompt
 }
 
 // Ms describes the generate-trend subcommand
@@ -78,12 +78,12 @@ func (cmd *GenerateTrend) Run() error {
 	}
 
 	tg := &trend.TrendGenerator{
-		Context:          context.Background(),
-		Brain:            brain,
-		Storage:          storage,
-		Feeds:            internal.ConvertToFeedReaders(config.RssFeedReaders),
-		RatingBasePrompt: config.RatingBasePrompt,
-		ReGenerate:       cmd.regen,
+		Context:       context.Background(),
+		Brain:         brain,
+		Storage:       storage,
+		Feeds:         internal.ConvertToFeedReaders(config.RssFeedReaders),
+		RatingPrompts: config.RatingPrompts,
+		ReGenerate:    cmd.regen,
 	}
 
 	if cmd.loop {
@@ -104,7 +104,12 @@ func printConfigurationTemplate() {
 				ShouldCleanHtml: true,
 			},
 		},
-		RatingBasePrompt: "Based solely on the news below, rate your rating in investing in Bitcoin from 0 (no rating, unwise) to 50 (neutral) to 100 (high rating, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
+		RatingPrompts: []trend.RatingPrompt{
+			{
+				Identifier: "BitcoinConfidence",
+				BasePrompt: "Based solely on the news below, rate your rating in investing in Bitcoin from 0 (no rating, unwise) to 50 (neutral) to 100 (high rating, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
+			},
+		},
 	}
 
 	jsonData, err := json.MarshalIndent(configTemplate, "", "  ")

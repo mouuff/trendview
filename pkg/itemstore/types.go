@@ -8,7 +8,7 @@ import (
 // ItemComposite is a feed item with all the generated results
 type ItemComposite struct {
 	feed.FeedItem
-	RatingResult *brain.RatingResult
+	Results map[string]*brain.RatingResult
 }
 
 // ItemStore is the interface for storing and loading items
