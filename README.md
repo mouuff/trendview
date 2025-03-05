@@ -1,7 +1,7 @@
 # TrendView
 View trends using AI
 
-`go run .\cmd\trendview generate -config .\data\msft-rating-configuration.json -datafile .\data\msft-rating-data.json -loop`
+`go run .\cmd\trendview generate -config .\config\msft-rating-configuration.json -datafile .\data\msft-rating-data.json -loop`
 
 `go run .\cmd\trendview convert-to-html -datafile .\data\msft-rating-data.json -id MicrosoftConfidence > .\data\view.html; .\data\view.html`
 
