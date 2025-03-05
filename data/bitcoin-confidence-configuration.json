@@ -1,9 +1,0 @@
-{
-    "RssFeedReaders": [
-        {
-            "Url": "https://news.google.com/rss/search?q=BTC+Bitcoin+news+when:1h\u0026hl=en-US\u0026gl=US\u0026ceid=US:en",
-            "ShouldCleanHtml": true
-        }
-    ],
-    "ConfidenceBasePrompt": "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (high confidence, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: "
-}

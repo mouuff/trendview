@@ -105,7 +105,7 @@ func getHtml(jsonContent string) string {
 
     // Convert the JSON object into an array and sort by DateTime
     const sortedEntries = Object.values(dataSet).sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
-    const entries = Object.values(sortedEntries).filter((a) => a.ConfidenceResult.confidence != 50);
+    const entries = Object.values(sortedEntries).filter((a) => a.RatingResult.rating != 50);
 
     // Get unique sources
     const sources = [...new Set(entries.map(item => item.Source))];
@@ -122,12 +122,12 @@ func getHtml(jsonContent string) string {
     filterContainer.appendChild(filterSelect);
     document.querySelector('.container').insertBefore(filterContainer, document.querySelector('canvas'));
 
-    // Prepare chart data points (using Confidence as the y-value)
+    // Prepare chart data points (using Rating as the y-value)
     const prepareChartData = (source) => {
       const filteredEntries = source === 'all' ? entries : entries.filter(item => item.Source === source);
       return filteredEntries.map(item => ({
       x: new Date(item.DateTime),
-      y: item.ConfidenceResult.confidence,
+      y: item.RatingResult.rating,
       title: item.Title,
       content: item.Content,
       link: item.Link
@@ -142,7 +142,7 @@ func getHtml(jsonContent string) string {
       type: 'scatter',
       data: {
       datasets: [{
-        label: 'Articles Confidence',
+        label: 'Articles Rating',
         data: chartData,
         backgroundColor: 'rgba(75, 192, 192, 0.7)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -160,7 +160,7 @@ func getHtml(jsonContent string) string {
           },
           label: (tooltipItem) => {
           const dateStr = new Date(tooltipItem.raw.x).toLocaleString();
-          return 'Date: ' + dateStr + '\nConfidence: ' + tooltipItem.raw.y;
+          return 'Date: ' + dateStr + '\nRating: ' + tooltipItem.raw.y;
           },
           afterBody: (tooltipItems) => {
           return 'Content: ' + tooltipItems[0].raw.content;
@@ -188,7 +188,7 @@ func getHtml(jsonContent string) string {
         y: {
         title: {
           display: true,
-          text: 'Confidence'
+          text: 'Rating'
         },
         ticks: {
           color: '#333'

@@ -17,8 +17,8 @@ import (
 )
 
 type TrendGeneratorConfig struct {
-	RssFeedReaders       []feed.RssFeedReader
-	ConfidenceBasePrompt string
+	RssFeedReaders   []feed.RssFeedReader
+	RatingBasePrompt string
 }
 
 // Ms describes the generate-trend subcommand
@@ -34,7 +34,7 @@ type GenerateTrend struct {
 
 // Name gets the name of the command
 func (cmd *GenerateTrend) Name() string {
-	return "generate-trend"
+	return "generate"
 }
 
 // Init initializes the command
@@ -78,12 +78,12 @@ func (cmd *GenerateTrend) Run() error {
 	}
 
 	tg := &trend.TrendGenerator{
-		Context:              context.Background(),
-		Brain:                brain,
-		Storage:              storage,
-		Feeds:                internal.ConvertToFeedReaders(config.RssFeedReaders),
-		ConfidenceBasePrompt: config.ConfidenceBasePrompt,
-		ReGenerate:           cmd.regen,
+		Context:          context.Background(),
+		Brain:            brain,
+		Storage:          storage,
+		Feeds:            internal.ConvertToFeedReaders(config.RssFeedReaders),
+		RatingBasePrompt: config.RatingBasePrompt,
+		ReGenerate:       cmd.regen,
 	}
 
 	if cmd.loop {
@@ -104,7 +104,7 @@ func printConfigurationTemplate() {
 				ShouldCleanHtml: true,
 			},
 		},
-		ConfidenceBasePrompt: "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (high confidence, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
+		RatingBasePrompt: "Based solely on the news below, rate your rating in investing in Bitcoin from 0 (no rating, unwise) to 50 (neutral) to 100 (high rating, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
 	}
 
 	jsonData, err := json.MarshalIndent(configTemplate, "", "  ")

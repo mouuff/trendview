@@ -24,8 +24,8 @@ type TrendGenerator struct {
 	// Feeds: A list of feed readers for reading data from various sources.
 	Feeds []feed.FeedReader
 
-	// ConfidenceBasePrompt: A base prompt used for generating confidence levels.
-	ConfidenceBasePrompt string
+	// RatingBasePrompt: A base prompt used for generating rating levels.
+	RatingBasePrompt string
 
 	// ReGenerate: A flag indicating whether to regenerate trends.
 	ReGenerate bool
@@ -53,7 +53,7 @@ func (tg *TrendGenerator) Execute() error {
 	}
 
 	tg.readFeeds()
-	tg.generateConfidenceScores(tg.Context)
+	tg.generateRatingScores(tg.Context)
 
 	log.Printf("Saving %d items", len(tg.items))
 	return tg.Storage.Save(tg.items)
@@ -83,21 +83,21 @@ func (tg *TrendGenerator) readFeeds() {
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) generateConfidenceScores(ctx context.Context) {
-	if tg.ConfidenceBasePrompt == "" {
+func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
+	if tg.RatingBasePrompt == "" {
 		return
 	}
 
 	for _, item := range tg.items {
-		if item.ConfidenceResult == nil || tg.ReGenerate {
-			confidence, err := tg.Brain.GenerateConfidence(ctx, tg.ConfidenceBasePrompt+item.Content)
+		if item.RatingResult == nil || tg.ReGenerate {
+			rating, err := tg.Brain.GenerateRating(ctx, tg.RatingBasePrompt+item.Content)
 
 			if err != nil {
-				log.Printf("Error generating confidence: %v\n", err)
+				log.Printf("Error generating rating: %v\n", err)
 				continue
 			}
 
-			item.ConfidenceResult = confidence
+			item.RatingResult = rating
 		}
 	}
 }

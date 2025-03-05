@@ -36,18 +36,18 @@ func NewOllamaBrain() (*OllamaBrain, error) {
 	}, nil
 }
 
-func (c *OllamaBrain) GenerateConfidence(ctx context.Context, prompt string) (*ConfidenceResult, error) {
+func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*RatingResult, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
-			"confidence": {
+			"rating": {
 				Type: "integer",
 			},
 		},
-		Required: []string{"confidence"},
+		Required: []string{"rating"},
 	}
 
-	var result ConfidenceResult
+	var result RatingResult
 
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)
@@ -60,7 +60,7 @@ func (c *OllamaBrain) GenerateConfidence(ctx context.Context, prompt string) (*C
 	err := c.generate(ctx, prompt, formatSchema, respFunc)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate confidence: %v", err)
+		return nil, fmt.Errorf("failed to generate rating: %v", err)
 	}
 
 	return &result, nil

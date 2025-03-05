@@ -2,10 +2,10 @@ package brain
 
 import "context"
 
-type ConfidenceResult struct {
-	Confidence int `json:"confidence"`
+type RatingResult struct {
+	Rating int `json:"rating"`
 }
 
 type Brain interface {
-	GenerateConfidence(ctx context.Context, news string) (*ConfidenceResult, error)
+	GenerateRating(ctx context.Context, prompt string) (*RatingResult, error)
 }
