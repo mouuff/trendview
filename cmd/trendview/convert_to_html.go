@@ -104,9 +104,11 @@ func getHtml(jsonContent string) string {
     // Original JSON data (input schema unchanged)
     const dataSet = {{jsonContent}};
 
+    var identifer = "MicrosoftConfidence";
+
     // Convert the JSON object into an array and sort by DateTime
     const sortedEntries = Object.values(dataSet).sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
-    const entries = Object.values(sortedEntries).filter((a) => a.RatingResult.rating != 50);
+    const entries = Object.values(sortedEntries).filter((a) => a.Results[identifer].rating != 50);
 
     // Get unique sources
     const sources = [...new Set(entries.map(item => item.Source))];
@@ -131,7 +133,7 @@ func getHtml(jsonContent string) string {
       const sourceFilteredEntries = source === 'all' ? filteredEntries : filteredEntries.filter(item => item.Source === source);
       return sourceFilteredEntries.map(item => ({
       x: new Date(item.DateTime),
-      y: item.RatingResult.rating,
+      y: item.Results[identifer].rating,
       title: item.Title,
       content: item.Content,
       link: item.Link
@@ -222,7 +224,6 @@ func getHtml(jsonContent string) string {
     });
   </script>
 </body>
-</html>
-`
+</html>`
 	return strings.ReplaceAll(baseHtml, "{{jsonContent}}", jsonContent)
 }
