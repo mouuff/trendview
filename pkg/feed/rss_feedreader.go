@@ -3,7 +3,9 @@ package feed
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -93,15 +95,25 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 	for _, item := range rss.Channel.Items {
 		parsedDate, err := parsePubDate(item.PubDate)
 		if err != nil {
-			fmt.Printf("Warning: Failed to parse date '%s': %v. Skipping this item.\n", item.PubDate, err)
+			log.Printf("Warning: Failed to parse date '%s': %v. Skipping this item.\n", item.PubDate, err)
 			continue
 		}
 
+		source := item.Source
 		title := cleanSpecialChars(item.Title)
 		description := cleanSpecialChars(item.Description)
 
 		if p.ShouldCleanHtml {
 			description = cleanHTML(description)
+		}
+
+		if source == "" && item.Link != "" {
+			url, err := url.Parse(item.Link)
+			if err != nil {
+				log.Printf("Warning: Failed to parse link '%s': %v.\n", item.PubDate, err)
+			} else {
+				source = url.Hostname()
+			}
 		}
 
 		report := FeedItem{
@@ -110,7 +122,7 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 			DateTime: *parsedDate,
 			Link:     item.Link,
 			GUID:     item.GUID,
-			Source:   item.Source,
+			Source:   source,
 		}
 		reports = append(reports, report)
 	}
