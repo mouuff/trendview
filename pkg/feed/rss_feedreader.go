@@ -48,6 +48,14 @@ func cleanHTML(html string) string {
 	return text
 }
 
+// cleanSpecialChars removes special characters
+func cleanSpecialChars(text string) string {
+	text = strings.ReplaceAll(text, "’", "'")
+	text = strings.ReplaceAll(text, "‘", "'")
+	text = strings.ReplaceAll(text, "–", "-")
+	return text
+}
+
 // parsePubDate attempts to parse RSS publication date strings
 func parsePubDate(pubDate string) (*time.Time, error) {
 	// Try RFC1123 first (handles GMT and other timezone names)
@@ -89,13 +97,15 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 			continue
 		}
 
-		description := item.Description
+		title := cleanSpecialChars(item.Title)
+		description := cleanSpecialChars(item.Description)
+
 		if p.ShouldCleanHtml {
 			description = cleanHTML(description)
 		}
 
 		report := FeedItem{
-			Title:    item.Title,
+			Title:    title,
 			Content:  description,
 			DateTime: *parsedDate,
 			Link:     item.Link,
