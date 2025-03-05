@@ -112,7 +112,9 @@ func getHtml(identifier, jsonContent string) string {
 
     // Convert the JSON object into an array and sort by DateTime
     const sortedEntries = Object.values(dataSet).sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
-    const entries = Object.values(sortedEntries).filter((a) => a.Results[identifier].rating != 50);
+    // const entries = Object.values(sortedEntries).filter((a) => a.Results[identifier].rating != 50);
+
+    const entries = sortedEntries;
 
     // Get unique sources
     const sources = [...new Set(entries.map(item => item.Source))];
