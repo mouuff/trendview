@@ -16,7 +16,8 @@ import (
 type ConvertToHtml struct {
 	flagSet *flag.FlagSet
 
-	datafile string
+	datafile   string
+	identifier string
 }
 
 // Name gets the name of the command
@@ -28,6 +29,7 @@ func (cmd *ConvertToHtml) Name() string {
 func (cmd *ConvertToHtml) Init(args []string) error {
 	cmd.flagSet = flag.NewFlagSet(cmd.Name(), flag.ExitOnError)
 	cmd.flagSet.StringVar(&cmd.datafile, "datafile", "", "file used to load data (required)")
+	cmd.flagSet.StringVar(&cmd.identifier, "id", "", "the identifier for the Y axis, as configured in the RatingPrompt (required)")
 	return cmd.flagSet.Parse(args)
 }
 
@@ -36,6 +38,10 @@ func (cmd *ConvertToHtml) Run() error {
 	if cmd.datafile == "" {
 		log.Println("Please specify a data file using -datafile (e.g. -datafile data.json)")
 		return errors.New("-datafile parameter required")
+	}
+	if cmd.identifier == "" {
+		log.Println("Please specify a identifier using -id (e.g. -id MicrosoftConfidence)")
+		return errors.New("-id parameter required")
 	}
 
 	storage := &itemstore.JsonItemStore{
@@ -48,19 +54,18 @@ func (cmd *ConvertToHtml) Run() error {
 		return err
 	}
 
-	// Filter out data where the rating is 50
 	bytes, err := json.Marshal(data)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(getHtml(string(bytes)))
+	fmt.Println(getHtml(cmd.identifier, string(bytes)))
 
 	return nil
 }
 
-func getHtml(jsonContent string) string {
+func getHtml(identifier, jsonContent string) string {
 	baseHtml := `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,12 +108,11 @@ func getHtml(jsonContent string) string {
   <script>
     // Original JSON data (input schema unchanged)
     const dataSet = {{jsonContent}};
-
-    var identifer = "MicrosoftConfidence";
+    const identifier = "{{identifier}}";
 
     // Convert the JSON object into an array and sort by DateTime
     const sortedEntries = Object.values(dataSet).sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
-    const entries = Object.values(sortedEntries).filter((a) => a.Results[identifer].rating != 50);
+    const entries = Object.values(sortedEntries).filter((a) => a.Results[identifier].rating != 50);
 
     // Get unique sources
     const sources = [...new Set(entries.map(item => item.Source))];
@@ -133,7 +137,7 @@ func getHtml(jsonContent string) string {
       const sourceFilteredEntries = source === 'all' ? filteredEntries : filteredEntries.filter(item => item.Source === source);
       return sourceFilteredEntries.map(item => ({
       x: new Date(item.DateTime),
-      y: item.Results[identifer].rating,
+      y: item.Results[identifier].rating,
       title: item.Title,
       content: item.Content,
       link: item.Link
@@ -225,5 +229,8 @@ func getHtml(jsonContent string) string {
   </script>
 </body>
 </html>`
-	return strings.ReplaceAll(baseHtml, "{{jsonContent}}", jsonContent)
+	result := baseHtml
+	result = strings.ReplaceAll(result, "{{jsonContent}}", jsonContent)
+	result = strings.ReplaceAll(result, "{{identifier}}", identifier)
+	return result
 }
