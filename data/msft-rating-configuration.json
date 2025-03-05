@@ -1,8 +1,14 @@
 {
     "RssFeedReaders": [
         {
-            "Url": "https://news.google.com/rss/search?q=MSFT+Microsoft+news+when:1h\u0026hl=en-US\u0026gl=US\u0026ceid=US:en",
+            "Url": "https://www.theguardian.com/uk/technology/rss",
             "ShouldCleanHtml": true
+        },
+        {
+            "Url": "https://feeds.bloomberg.com/markets/news.rss"
+        },
+        {
+            "Url": "https://feeds.bloomberg.com/technology/news.rss"
         }
     ],
     "RatingBasePrompt": "Based solely on the news below, rate your rating in investing in Microsoft from 0 (no rating, unwise) to 50 (neutral) to 100 (high rating, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: "

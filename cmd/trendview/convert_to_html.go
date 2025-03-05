@@ -132,8 +132,11 @@ func getHtml(jsonContent string) string {
 
     // Prepare chart data points (using Rating as the y-value)
     const prepareChartData = (source) => {
-      const filteredEntries = source === 'all' ? entries : entries.filter(item => item.Source === source);
-      return filteredEntries.map(item => ({
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      const filteredEntries = entries.filter(item => new Date(item.DateTime) >= oneMonthAgo);
+      const sourceFilteredEntries = source === 'all' ? filteredEntries : filteredEntries.filter(item => item.Source === source);
+      return sourceFilteredEntries.map(item => ({
       x: new Date(item.DateTime),
       y: item.RatingResult.rating,
       title: item.Title,
