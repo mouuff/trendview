@@ -29,7 +29,6 @@ type Item struct {
 	PubDate     string `xml:"pubDate"`
 	Link        string `xml:"link"`
 	GUID        string `xml:"guid"`
-	Source      string `xml:"source"`
 }
 
 // RssFeedReader is a feed provider that fetches RSS feeds
@@ -101,7 +100,7 @@ func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 			continue
 		}
 
-		source := item.Source
+		var source string
 		title := cleanSpecialChars(item.Title)
 		description := cleanSpecialChars(item.Description)
 
@@ -109,10 +108,10 @@ func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 			description = cleanHTML(description)
 		}
 
-		if source == "" && item.Link != "" {
+		if item.Link != "" {
 			url, err := url.Parse(item.Link)
 			if err != nil {
-				log.Printf("Warning: Failed to parse link '%s': %v.\n", item.PubDate, err)
+				log.Printf("Warning: Failed to parse link '%s': %v.\n", item.Link, err)
 			} else {
 				source = url.Hostname()
 			}
