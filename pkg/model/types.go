@@ -26,14 +26,7 @@ type ItemComposite struct {
 	Results map[string]*RatingResult
 }
 
-type FilterPrompt struct {
-	BasePrompt             string
-	FilterIfRatingLessThan int
-	FilterIfRatingMoreThan int
-}
-
 type RatingPrompt struct {
-	Identifier   string
-	BasePrompt   string
-	FilterPrompt *FilterPrompt
+	Identifier string
+	BasePrompt string
 }
