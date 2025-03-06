@@ -86,7 +86,7 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 	for _, item := range tg.itemState {
 
 		if item.Results == nil || tg.ReGenerate {
-			item.Results = make(map[string]int)
+			item.Results = make(map[string]*model.RatingResult)
 		}
 
 		for _, ratingPrompt := range tg.RatingPrompts {
@@ -117,7 +117,10 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 			return err
 		}
 
-		item.Results[ratingPrompt.Identifier] = rating
+		item.Results[ratingPrompt.Identifier] = &model.RatingResult{
+			Subject: "WIP",
+			Value:   rating,
+		}
 	}
 
 	return nil
