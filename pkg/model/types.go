@@ -17,8 +17,9 @@ type FeedItem struct {
 }
 
 type RatingResult struct {
-	Subject string
-	Value   int
+	SubjectName string
+	InsightName string
+	Value       int
 }
 
 // ItemComposite is a feed item with all the generated results
@@ -28,7 +29,8 @@ type ItemComposite struct {
 }
 
 type RatingPrompt struct {
-	Identifier string
-	Subject    string
-	BasePrompt string
+	Identifier  string
+	SubjectName string
+	InsightName string
+	BasePrompt  string
 }
