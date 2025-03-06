@@ -4,12 +4,12 @@ TrendView is a tool that leverages AI to analyze and visualize trends.
 
 ## Prerequisites
 
-Before you can use TrendView, ensure you have the following installed:
+Before using TrendView, ensure you have the following installed:
 
-- **Golang**: You can download and install Golang from [the official website](https://golang.org/dl/).
-- **Ollama**: Follow the installation instructions provided on [Ollama's website](https://ollama.com/).
+- **Golang**: Download and install Golang from [the official website](https://golang.org/dl/).
+- **Ollama**: Download and install Ollama from [Ollama's website](https://ollama.com/).
 
-Run ollama in server mode:
+To run Ollama in server mode, use the following command:
 
 ```sh
 ollama serve
