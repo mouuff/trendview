@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mouuff/TrendView/pkg/feed"
+	"github.com/mouuff/TrendView/pkg/model"
 )
 
 func ReadFromJson(path string, dataOut interface{}) error {
@@ -20,8 +21,8 @@ func ReadFromJson(path string, dataOut interface{}) error {
 	return nil
 }
 
-func ConvertToFeedReaders(rssFeedReaders []feed.RssFeedReader) []feed.FeedReader {
-	feedReaders := make([]feed.FeedReader, len(rssFeedReaders))
+func ConvertToFeedReaders(rssFeedReaders []feed.RssFeedReader) []model.FeedReader {
+	feedReaders := make([]model.FeedReader, len(rssFeedReaders))
 	for i, rssFeedReader := range rssFeedReaders {
 		feedReaders[i] = &rssFeedReader
 	}

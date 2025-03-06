@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/mouuff/TrendView/pkg/model"
 )
 
 // RSS structs for XML parsing
@@ -73,7 +75,7 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
-func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
+func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 	resp, err := http.Get(p.Url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch RSS feed: %v", err)
@@ -91,7 +93,7 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 		return nil, fmt.Errorf("failed to parse RSS feed: %v", err)
 	}
 
-	reports := make([]FeedItem, 0, len(rss.Channel.Items))
+	reports := make([]model.FeedItem, 0, len(rss.Channel.Items))
 	for _, item := range rss.Channel.Items {
 		parsedDate, err := parsePubDate(item.PubDate)
 		if err != nil {
@@ -116,7 +118,7 @@ func (p *RssFeedReader) GetFeedItems() ([]FeedItem, error) {
 			}
 		}
 
-		report := FeedItem{
+		report := model.FeedItem{
 			Title:    title,
 			Content:  description,
 			DateTime: *parsedDate,

@@ -5,15 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mouuff/TrendView/pkg/brain"
-	"github.com/mouuff/TrendView/pkg/feed"
-	"github.com/mouuff/TrendView/pkg/itemstore"
+	"github.com/mouuff/TrendView/pkg/model"
 )
-
-type RatingPrompt struct {
-	Identifier string
-	BasePrompt string
-}
 
 // TrendGenerator is responsible for generating trends based on the provided context,
 // brain, storage, and feeds. It also maintains an internal state of items.
@@ -22,22 +15,22 @@ type TrendGenerator struct {
 	Context context.Context
 
 	// Brain: The brain component responsible for processing and analyzing data.
-	Brain brain.Brain
+	Brain model.Brain
 
 	// Storage: The item store for storing and retrieving items.
-	Storage itemstore.ItemStore
+	Storage model.ItemStore
 
 	// Feeds: A list of feed readers for reading data from various sources.
-	Feeds []feed.FeedReader
+	Feeds []model.FeedReader
 
 	// RatingPrompts: A base prompt used for generating rating levels.
-	RatingPrompts []RatingPrompt
+	RatingPrompts []model.RatingPrompt
 
 	// ReGenerate: A flag indicating whether to regenerate trends.
 	ReGenerate bool
 
 	// Internal state
-	items map[string]*itemstore.ItemComposite
+	items map[string]*model.ItemComposite
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -55,7 +48,7 @@ func (tg *TrendGenerator) Execute() error {
 		log.Printf("Loaded %d existing items", len(tg.items))
 	} else {
 		log.Printf("No existing data found, starting from scratch")
-		tg.items = make(map[string]*itemstore.ItemComposite)
+		tg.items = make(map[string]*model.ItemComposite)
 	}
 
 	tg.readFeeds()
@@ -75,7 +68,7 @@ func (tg *TrendGenerator) readFeeds() {
 		}
 
 		for _, item := range feedItems {
-			enrichedItem := itemstore.ItemComposite{
+			enrichedItem := model.ItemComposite{
 				FeedItem: item,
 			}
 
@@ -102,7 +95,7 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingPrompt RatingPrompt, item *itemstore.ItemComposite) error {
+func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingPrompt model.RatingPrompt, item *model.ItemComposite) error {
 	if ratingPrompt.BasePrompt == "" {
 		return fmt.Errorf("variable BasePrompt is required for rating prompt")
 	}
@@ -111,7 +104,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 	}
 
 	if item.Results == nil || tg.ReGenerate {
-		item.Results = make(map[string]*brain.RatingResult)
+		item.Results = make(map[string]*model.RatingResult)
 	}
 
 	_, resultExists := item.Results[ratingPrompt.Identifier]

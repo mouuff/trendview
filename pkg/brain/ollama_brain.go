@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/mouuff/TrendView/pkg/model"
 	"github.com/ollama/ollama/api"
 )
 
@@ -36,7 +37,7 @@ func NewOllamaBrain() (*OllamaBrain, error) {
 	}, nil
 }
 
-func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*RatingResult, error) {
+func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*model.RatingResult, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
@@ -47,7 +48,7 @@ func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*Ratin
 		Required: []string{"rating"},
 	}
 
-	var result RatingResult
+	var result model.RatingResult
 
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)

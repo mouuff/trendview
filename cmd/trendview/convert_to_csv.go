@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mouuff/TrendView/pkg/itemstore"
+	"github.com/mouuff/TrendView/pkg/model"
 )
 
 // Ms describes the generate-trend subcommand
@@ -83,7 +84,7 @@ func (cmd *ConvertToCsv) Run() error {
 	return nil
 }
 
-func computeIdentifiers(data map[string]*itemstore.ItemComposite) []string {
+func computeIdentifiers(data map[string]*model.ItemComposite) []string {
 	identifiers := []string{}
 	for _, item := range data {
 		for identifier := range item.Results {

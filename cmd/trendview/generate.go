@@ -13,12 +13,13 @@ import (
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
 	"github.com/mouuff/TrendView/pkg/itemstore"
+	"github.com/mouuff/TrendView/pkg/model"
 	"github.com/mouuff/TrendView/pkg/trend"
 )
 
 type TrendGeneratorConfig struct {
 	RssFeedReaders []feed.RssFeedReader
-	RatingPrompts  []trend.RatingPrompt
+	RatingPrompts  []model.RatingPrompt
 }
 
 // Ms describes the generate-trend subcommand
@@ -104,7 +105,7 @@ func printConfigurationTemplate() {
 				ShouldCleanHtml: true,
 			},
 		},
-		RatingPrompts: []trend.RatingPrompt{
+		RatingPrompts: []model.RatingPrompt{
 			{
 				Identifier: "BitcoinConfidence",
 				BasePrompt: "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: ",
