@@ -17,7 +17,7 @@ type FeedItem struct {
 }
 
 type RatingResult struct {
-	Rating *int `json:"rating"`
+	Rating int `json:"rating"`
 }
 
 // ItemComposite is a feed item with all the generated results
