@@ -30,7 +30,7 @@ type TrendGenerator struct {
 	ReGenerate bool
 
 	// Internal state
-	items map[string]*model.ItemComposite
+	items model.ItemState
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -48,7 +48,7 @@ func (tg *TrendGenerator) Execute() error {
 		log.Printf("Loaded %d existing items", len(tg.items))
 	} else {
 		log.Printf("No existing data found, starting from scratch")
-		tg.items = make(map[string]*model.ItemComposite)
+		tg.items = make(model.ItemState)
 	}
 
 	tg.readFeeds()

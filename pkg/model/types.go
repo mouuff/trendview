@@ -4,6 +4,9 @@ import (
 	"time"
 )
 
+// The processing item state
+type ItemState map[string]*ItemComposite
+
 type FeedItem struct {
 	Title    string
 	Content  string

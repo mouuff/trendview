@@ -4,8 +4,8 @@ import "context"
 
 // ItemStore is the interface for storing and loading items
 type ItemStore interface {
-	Load() (map[string]*ItemComposite, error)
-	Save(items map[string]*ItemComposite) error
+	Load() (ItemState, error)
+	Save(items ItemState) error
 	Exists() bool
 }
 
