@@ -29,5 +29,6 @@ type ItemComposite struct {
 
 type RatingPrompt struct {
 	Identifier string
+	Subject    string
 	BasePrompt string
 }

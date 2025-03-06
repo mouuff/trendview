@@ -118,7 +118,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 		}
 
 		item.Results[ratingPrompt.Identifier] = &model.RatingResult{
-			Subject: "WIP",
+			Subject: ratingPrompt.Subject,
 			Value:   rating,
 		}
 	}
