@@ -9,6 +9,12 @@
         },
         {
             "Url": "https://feeds.bloomberg.com/technology/news.rss"
+        },
+        {
+            "Url": "https://www.lemonde.fr/en/economy/rss_full.xml"
+        },
+        {
+            "Url": "https://www.lemonde.fr/en/money-investments/rss_full.xml"
         }
     ],
     "RatingPrompts": [
