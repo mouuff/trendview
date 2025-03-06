@@ -30,7 +30,7 @@ type TrendGenerator struct {
 	ReGenerate bool
 
 	// Internal state
-	items model.ItemState
+	itemState model.ItemState
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -43,19 +43,19 @@ func (tg *TrendGenerator) Execute() error {
 			return err
 		}
 
-		tg.items = items
+		tg.itemState = items
 
-		log.Printf("Loaded %d existing items", len(tg.items))
+		log.Printf("Loaded %d existing items", len(tg.itemState))
 	} else {
 		log.Printf("No existing data found, starting from scratch")
-		tg.items = make(model.ItemState)
+		tg.itemState = make(model.ItemState)
 	}
 
 	tg.readFeeds()
 	tg.generateRatingScores(tg.Context)
 
-	log.Printf("Saving %d items", len(tg.items))
-	return tg.Storage.Save(tg.items)
+	log.Printf("Saving %d items", len(tg.itemState))
+	return tg.Storage.Save(tg.itemState)
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -73,8 +73,8 @@ func (tg *TrendGenerator) readFeeds() {
 			}
 
 			if item.GUID != "" {
-				if _, exists := tg.items[item.GUID]; !exists {
-					tg.items[item.GUID] = &enrichedItem
+				if _, exists := tg.itemState[item.GUID]; !exists {
+					tg.itemState[item.GUID] = &enrichedItem
 				}
 			}
 		}
@@ -83,7 +83,7 @@ func (tg *TrendGenerator) readFeeds() {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
-	for _, item := range tg.items {
+	for _, item := range tg.itemState {
 		for _, ratingPrompt := range tg.RatingPrompts {
 			err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
 			if err != nil {
