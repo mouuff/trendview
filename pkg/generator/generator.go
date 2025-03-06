@@ -1,4 +1,4 @@
-package trend
+package generator
 
 import (
 	"context"

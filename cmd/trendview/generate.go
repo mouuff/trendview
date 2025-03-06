@@ -12,9 +12,9 @@ import (
 	"github.com/mouuff/TrendView/internal"
 	"github.com/mouuff/TrendView/pkg/brain"
 	"github.com/mouuff/TrendView/pkg/feed"
+	"github.com/mouuff/TrendView/pkg/generator"
 	"github.com/mouuff/TrendView/pkg/itemstore"
 	"github.com/mouuff/TrendView/pkg/model"
-	"github.com/mouuff/TrendView/pkg/trend"
 )
 
 type TrendGeneratorConfig struct {
@@ -78,7 +78,7 @@ func (cmd *GenerateTrend) Run() error {
 		Filename: cmd.datafile,
 	}
 
-	tg := &trend.TrendGenerator{
+	tg := &generator.TrendGenerator{
 		Context:       context.Background(),
 		Brain:         brain,
 		Storage:       storage,
