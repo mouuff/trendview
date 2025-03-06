@@ -17,7 +17,7 @@ type FeedItem struct {
 }
 
 type RatingResult struct {
-	Rating int `json:"rating"`
+	Rating *int `json:"rating"`
 }
 
 // ItemComposite is a feed item with all the generated results
@@ -29,6 +29,7 @@ type ItemComposite struct {
 type FilterPrompt struct {
 	BasePrompt             string
 	FilterIfRatingLessThan int
+	FilterIfRatingMoreThan int
 }
 
 type RatingPrompt struct {

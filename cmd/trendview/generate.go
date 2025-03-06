@@ -112,6 +112,7 @@ func printConfigurationTemplate() {
 				FilterPrompt: &model.FilterPrompt{
 					BasePrompt:             "Based exclusively on the news provided below, evaluate the potential connection to Bitcoin's price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: ",
 					FilterIfRatingLessThan: 50,
+					FilterIfRatingMoreThan: 100,
 				},
 			},
 		},
