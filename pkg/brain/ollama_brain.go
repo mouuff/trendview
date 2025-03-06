@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mouuff/TrendView/pkg/model"
 	"github.com/ollama/ollama/api"
 )
+
+type ollamaRatingResult struct {
+	Rating int `json:"rating"`
+}
 
 type Schema struct {
 	Type       string              `json:"type"`
@@ -37,7 +40,7 @@ func NewOllamaBrain() (*OllamaBrain, error) {
 	}, nil
 }
 
-func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*model.RatingResult, error) {
+func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (int, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
@@ -48,7 +51,7 @@ func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*model
 		Required: []string{"rating"},
 	}
 
-	var result model.RatingResult
+	var result ollamaRatingResult
 
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)
@@ -61,10 +64,10 @@ func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (*model
 	err := c.generate(ctx, prompt, formatSchema, respFunc)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate rating: %v", err)
+		return 0, fmt.Errorf("failed to generate rating: %v", err)
 	}
 
-	return &result, nil
+	return result.Rating, nil
 }
 
 func (c *OllamaBrain) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {

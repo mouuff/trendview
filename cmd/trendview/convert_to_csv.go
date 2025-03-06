@@ -73,7 +73,7 @@ func (cmd *ConvertToCsv) Run() error {
 			if !exists {
 				fmt.Printf("\t")
 			} else {
-				fmt.Printf("\t%d", ratingResult.Rating)
+				fmt.Printf("\t%d", ratingResult)
 			}
 
 		}

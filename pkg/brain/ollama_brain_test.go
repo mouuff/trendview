@@ -38,11 +38,11 @@ func testGenerateRating(
 		t.Fatal(err)
 	}
 
-	if result.Rating > expectedMaxRating {
-		t.Errorf("Rating is %d should be less than %d for prompt: '%s'", result.Rating, expectedMaxRating, prompt)
+	if result > expectedMaxRating {
+		t.Errorf("Rating is %d should be less than %d for prompt: '%s'", result, expectedMaxRating, prompt)
 	}
 
-	if result.Rating < expectedMinRating {
-		t.Errorf("Rating is %d should be more than %d for prompt: '%s'", result.Rating, expectedMinRating, prompt)
+	if result < expectedMinRating {
+		t.Errorf("Rating is %d should be more than %d for prompt: '%s'", result, expectedMinRating, prompt)
 	}
 }

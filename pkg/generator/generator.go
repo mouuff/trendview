@@ -84,6 +84,11 @@ func (tg *TrendGenerator) readFeeds() {
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 	for _, item := range tg.itemState {
+
+		if item.Results == nil || tg.ReGenerate {
+			item.Results = make(map[string]int)
+		}
+
 		for _, ratingPrompt := range tg.RatingPrompts {
 			err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
 			if err != nil {
@@ -101,10 +106,6 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 	}
 	if ratingPrompt.Identifier == "" {
 		return fmt.Errorf("variable Identifier is required for rating prompt")
-	}
-
-	if item.Results == nil || tg.ReGenerate {
-		item.Results = make(map[string]*model.RatingResult)
 	}
 
 	_, resultExists := item.Results[ratingPrompt.Identifier]

@@ -16,14 +16,10 @@ type FeedItem struct {
 	Source   string
 }
 
-type RatingResult struct {
-	Rating int `json:"rating"`
-}
-
 // ItemComposite is a feed item with all the generated results
 type ItemComposite struct {
 	FeedItem
-	Results map[string]*RatingResult
+	Results map[string]int
 }
 
 type RatingPrompt struct {

@@ -14,5 +14,5 @@ type FeedReader interface {
 }
 
 type Brain interface {
-	GenerateRating(ctx context.Context, prompt string) (*RatingResult, error)
+	GenerateRating(ctx context.Context, prompt string) (int, error)
 }
