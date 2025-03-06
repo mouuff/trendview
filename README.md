@@ -19,6 +19,12 @@ To run Ollama in server mode, use the following command:
 ollama serve
 ```
 
+## Example Results
+
+Below is an example of the calculated confidence in Bitcoin based on recent news:
+
+![Example Result](images/example_result_1.png)
+
 ## Example Commands
 
 ### Generate Trends
