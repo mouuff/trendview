@@ -2,32 +2,17 @@
 
 TrendView is a tool that leverages AI to analyze and visualize trends.
 
-## Example configuration
-```json
-{
-    "RssFeedReaders": [
-        {
-            "Url": "https://www.theguardian.com/uk/technology/rss",
-            "ShouldCleanHtml": true
-        },
-        {
-            "Url": "https://feeds.bloomberg.com/markets/news.rss"
-        },
-        {
-            "Url": "https://feeds.bloomberg.com/technology/news.rss"
-        }
-    ],
-    "RatingPrompts": [
-      {
-        "Identifier": "MicrosoftConfidence",
-        "BasePrompt": "Based solely on the news below, rate your confidence in investing in Microsoft stocks from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. News: "
-      },
-      {
-        "Identifier": "MicrosoftRelated",
-        "BasePrompt": "Based exclusively on the news provided below, evaluate the potential connection to Microsoft's stock price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: "
-      }
-    ]
-}
+## Prerequisites
+
+Before you can use TrendView, ensure you have the following installed:
+
+- **Golang**: You can download and install Golang from [the official website](https://golang.org/dl/).
+- **Ollama**: Follow the installation instructions provided on [Ollama's website](https://ollama.com/).
+
+Run ollama in server mode:
+
+```sh
+ollama serve
 ```
 
 ## Example Commands
@@ -54,4 +39,32 @@ To run unit tests, use the following command:
 
 ```sh
 go clean -testcache; go test ./...
+```
+
+## Example configuration
+```json
+{
+    "RssFeedReaders": [
+        {
+            "Url": "https://www.theguardian.com/uk/technology/rss",
+            "ShouldCleanHtml": true
+        },
+        {
+            "Url": "https://feeds.bloomberg.com/markets/news.rss"
+        },
+        {
+            "Url": "https://feeds.bloomberg.com/technology/news.rss"
+        }
+    ],
+    "RatingPrompts": [
+      {
+        "Identifier": "MicrosoftConfidence",
+        "BasePrompt": "Based solely on the news below, rate your confidence in investing in Microsoft stocks from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. News: "
+      },
+      {
+        "Identifier": "MicrosoftRelated",
+        "BasePrompt": "Based exclusively on the news provided below, evaluate the potential connection to Microsoft's stock price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: "
+      }
+    ]
+}
 ```
