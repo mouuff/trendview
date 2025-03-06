@@ -64,15 +64,25 @@ go clean -testcache; go test ./...
         },
         {
             "Url": "https://feeds.bloomberg.com/technology/news.rss"
+        },
+        {
+            "Url": "https://www.lemonde.fr/en/economy/rss_full.xml"
+        },
+        {
+            "Url": "https://www.lemonde.fr/en/money-investments/rss_full.xml"
         }
     ],
     "RatingPrompts": [
       {
+        "SubjectName": "Microsoft",
+        "InsightName": "Confidence",
         "Identifier": "MicrosoftConfidence",
         "BasePrompt": "Based solely on the news below, rate your confidence in investing in Microsoft stocks from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. News: "
       },
       {
-        "Identifier": "MicrosoftRelated",
+        "SubjectName": "Microsoft",
+        "InsightName": "Relevance",
+        "Identifier": "MicrosoftRelevance",
         "BasePrompt": "Based exclusively on the news provided below, evaluate the potential connection to Microsoft's stock price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: "
       }
     ]
