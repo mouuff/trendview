@@ -21,7 +21,7 @@ ollama serve
 
 ## Example Results
 
-Below is an example of the calculated confidence in Bitcoin based on recent news:
+Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating greater confidence.
 
 ![Example Result](images/example_result_1.png)
 
