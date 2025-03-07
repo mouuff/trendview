@@ -92,6 +92,51 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	return tx.Commit()
 }
 
+// UpdateResults updates only the results for an existing item by GUID
+func (s *SQLiteItemStore) UpdateResults(item *model.ItemComposite) error {
+	// Check if the item exists in feed_items first
+	var exists bool
+	err := s.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, item.GUID).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("no item found with GUID: %s", item.GUID)
+	}
+
+	// Use a transaction to update results
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Delete existing results for this GUID
+	_, err = tx.Exec(`DELETE FROM results WHERE article_guid = ?`, item.GUID)
+	if err != nil {
+		return err
+	}
+
+	// Insert new results
+	stmt, err := tx.Prepare(`
+        INSERT INTO results (article_guid, subject_name, insight_name, value)
+        VALUES (?, ?, ?, ?)
+    `)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, result := range item.Results {
+		_, err = stmt.Exec(item.GUID, result.SubjectName, result.InsightName, result.Value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
 // FindItem retrieves an ItemComposite by GUID
 func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 	var item model.ItemComposite

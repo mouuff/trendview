@@ -28,34 +28,13 @@ type TrendGenerator struct {
 
 	// ReGenerate: A flag indicating whether to regenerate trends.
 	ReGenerate bool
-
-	// Internal state
-	itemState model.ItemState
 }
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) Execute() error {
-
-	if tg.Storage.Exists() {
-		items, err := tg.Storage.Load()
-
-		if err != nil {
-			return err
-		}
-
-		tg.itemState = items
-
-		log.Printf("Loaded %d existing items", len(tg.itemState))
-	} else {
-		log.Printf("No existing data found, starting from scratch")
-		tg.itemState = make(model.ItemState)
-	}
-
 	tg.readFeeds()
 	tg.generateRatingScores(tg.Context)
-
-	log.Printf("Saving %d items", len(tg.itemState))
-	return tg.Storage.Save(tg.itemState)
+	return nil
 }
 
 // ReadFeeds reads feed items from the feeds.
@@ -73,8 +52,18 @@ func (tg *TrendGenerator) readFeeds() {
 			}
 
 			if item.GUID != "" {
-				if _, exists := tg.itemState[item.GUID]; !exists {
-					tg.itemState[item.GUID] = &enrichedItem
+				foundItem, err := tg.Storage.FindItem(item.GUID)
+
+				if err != nil {
+					log.Printf("Error reading database: %v\n", err)
+				}
+
+				if err == nil && foundItem == nil {
+					// If item is not found, save it
+					err = tg.Storage.SaveItem(&enrichedItem)
+					if err != nil {
+						log.Printf("Error writing to database: %v\n", err)
+					}
 				}
 			}
 		}
@@ -83,7 +72,14 @@ func (tg *TrendGenerator) readFeeds() {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
-	for _, item := range tg.itemState {
+	// TODO query only items that need to be updated
+	// Don't forget to take "ReGenerate" into account
+	items, err := tg.Storage.FindItems()
+	if err != nil {
+		log.Printf("Error reading database: %v\n", err)
+	}
+
+	for _, item := range items {
 
 		if item.Results == nil || tg.ReGenerate {
 			item.Results = make(map[string]*model.RatingResult)
@@ -95,6 +91,11 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 				log.Printf("Error generating rating: %v\n", err)
 				continue
 			}
+		}
+
+		err = tg.Storage.UpdateResults(item)
+		if err != nil {
+			log.Printf("Error saving rating: %v\n", err)
 		}
 	}
 }
@@ -128,6 +129,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 			InsightName: ratingPrompt.InsightName,
 			Value:       ratingValue,
 		}
+
 	}
 
 	return nil

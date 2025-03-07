@@ -40,11 +40,12 @@ func (cmd *ConvertToCsv) Run() error {
 		return errors.New("-datafile parameter required")
 	}
 
-	storage := &itemstore.JsonItemStore{
-		Filename: cmd.datafile,
+	storage, err := itemstore.NewSQLiteItemStore(cmd.datafile)
+	if err != nil {
+		return err
 	}
 
-	data, err := storage.Load()
+	data, err := storage.FindItems()
 
 	if err != nil {
 		return err

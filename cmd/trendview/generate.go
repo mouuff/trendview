@@ -74,8 +74,9 @@ func (cmd *GenerateTrend) Run() error {
 		return err
 	}
 
-	storage := &itemstore.JsonItemStore{
-		Filename: cmd.datafile,
+	storage, err := itemstore.NewSQLiteItemStore(cmd.datafile)
+	if err != nil {
+		return err
 	}
 
 	tg := &generator.TrendGenerator{
