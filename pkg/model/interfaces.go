@@ -10,10 +10,11 @@ type ItemStore interface {
 }
 
 /* TODO implement a proper database!!!
+
 type ItemStoreV2 interface {
-	Load() error
-	SaveItem(item ItemComposite) error
-	FindItem(guid string) (ItemComposite, error)
+	SaveItem(item *ItemComposite) error
+	FindItem(guid string) (*ItemComposite, error)
+	FindItems() (map[string]*ItemComposite, error)
 	Close()
 }
 */
