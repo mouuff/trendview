@@ -42,7 +42,7 @@ func (tg *TrendGenerator) readFeeds() {
 	for _, feed := range tg.Feeds {
 		feedItems, err := feed.GetFeedItems()
 		if err != nil {
-			log.Printf("Error reading feed: %v\n", err)
+			log.Printf("Error reading feed %s: %v\n", feed.GetSource(), err)
 			continue
 		}
 

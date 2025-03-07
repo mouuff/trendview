@@ -74,6 +74,10 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
+func (p *RssFeedReader) GetSource() string {
+	return p.Url
+}
+
 func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 	resp, err := http.Get(p.Url)
 	if err != nil {
