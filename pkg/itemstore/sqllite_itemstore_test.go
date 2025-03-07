@@ -14,7 +14,7 @@ func TestSQLiteItemStore(t *testing.T) {
 	tempDir := t.TempDir()
 	dbPath := filepath.Join(tempDir, "testdb.db")
 
-	newStore := func(t *testing.T) *itemstore.SQLiteItemStore {
+	newStore := func(t *testing.T) model.ItemStore {
 		store, err := itemstore.NewSQLiteItemStore(dbPath)
 		if err != nil {
 			t.Fatalf("Failed to create store: %v", err)

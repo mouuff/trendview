@@ -26,3 +26,5 @@ go.work.sum
 
 # CSV files
 *.csv
+
+node_modules/

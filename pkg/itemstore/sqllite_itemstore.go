@@ -15,7 +15,7 @@ type SQLiteItemStore struct {
 }
 
 // NewSQLiteItemStore creates a new SQLiteItemStore
-func NewSQLiteItemStore(dbPath string) (*SQLiteItemStore, error) {
+func NewSQLiteItemStore(dbPath string) (model.ItemStore, error) {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
