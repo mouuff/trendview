@@ -52,6 +52,34 @@ func (s *SQLiteItemStore) createTables() error {
 	return err
 }
 
+// AddRating adds a single rating for an article by GUID
+func (s *SQLiteItemStore) AddRating(articleGuid string, ratingResult *model.RatingResult) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var exists bool
+	err = tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, articleGuid).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("no article found with GUID: %s", articleGuid)
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO results (article_guid, subject_name, insight_name, value)
+		VALUES (?, ?, ?, ?)
+	`, articleGuid, ratingResult.SubjectName, ratingResult.InsightName, ratingResult.Value)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 // SaveItem saves or updates an ItemComposite in the database
 func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	tx, err := s.db.Begin()
@@ -90,13 +118,6 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	}
 
 	return tx.Commit()
-}
-
-// Helper function to count rows in results table
-func (s *SQLiteItemStore) GetResultsCount() (int, error) {
-	var count int
-	err := s.db.QueryRow(`SELECT COUNT(*) FROM results`).Scan(&count)
-	return count, err
 }
 
 // FindItem retrieves an ItemComposite by GUID
@@ -258,46 +279,15 @@ func (s *SQLiteItemStore) GetItemsWithoutRating(subject, insight string) ([]stri
 
 // RemoveAllRatings deletes all entries from the results table
 func (s *SQLiteItemStore) RemoveAllRatings() error {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(`DELETE FROM results`)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	_, err := s.db.Exec(`DELETE FROM results`)
+	return err
 }
 
-// AddRating adds a single rating for an article by GUID
-func (s *SQLiteItemStore) AddRating(articleGuid string, ratingResult *model.RatingResult) error {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	var exists bool
-	err = tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, articleGuid).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("no article found with GUID: %s", articleGuid)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO results (article_guid, subject_name, insight_name, value)
-		VALUES (?, ?, ?, ?)
-	`, articleGuid, ratingResult.SubjectName, ratingResult.InsightName, ratingResult.Value)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+// Helper function to count rows in results table
+func (s *SQLiteItemStore) GetResultsCount() (int, error) {
+	var count int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM results`).Scan(&count)
+	return count, err
 }
 
 // Close shuts down the database connection
