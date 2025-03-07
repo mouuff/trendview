@@ -25,20 +25,10 @@ type TrendGenerator struct {
 
 	// RatingPrompts: A base prompt used for generating rating levels.
 	RatingPrompts []model.RatingPrompt
-
-	// ReGenerate: A flag indicating whether to regenerate trends.
-	ReGenerate bool
 }
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) Execute() error {
-	tg.readFeeds()
-	tg.generateRatingScores(tg.Context)
-	return nil
-}
-
-// ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) readFeeds() {
 	for _, feed := range tg.Feeds {
 		feedItems, err := feed.GetFeedItems()
 		if err != nil {
@@ -47,72 +37,81 @@ func (tg *TrendGenerator) readFeeds() {
 		}
 
 		for _, item := range feedItems {
-			enrichedItem := model.ItemComposite{
+
+			if item.GUID == "" {
+				log.Printf("Empty item GUID skipping...\n")
+				continue
+			}
+
+			ratingResultMap, err := tg.generateRatingResultMap(&item)
+
+			if err != nil {
+				log.Printf("Error generating rating %s: %v\n", feed.GetSource(), err)
+				continue
+			}
+
+			// If item is not found, save it
+			err = tg.Storage.SaveItem(&model.ItemComposite{
 				FeedItem: item,
+				Results:  ratingResultMap,
+			})
+			if err != nil {
+				log.Printf("Error writing to database: %v\n", err)
 			}
 
-			if item.GUID != "" {
-				foundItem, err := tg.Storage.FindItem(item.GUID)
-
-				if err != nil {
-					log.Printf("Error reading database: %v\n", err)
-				}
-
-				if err == nil && foundItem == nil {
-					// If item is not found, save it
-					err = tg.Storage.SaveItem(&enrichedItem)
-					if err != nil {
-						log.Printf("Error writing to database: %v\n", err)
-					}
-				}
-			}
+			log.Printf("Saved item: %s\n", item.Title)
 		}
+	}
+	return nil
+}
+
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) ReGenerate() {
+	items, err := tg.Storage.FindItems()
+
+	if err != nil {
+		log.Printf("Error getting items: %v\n", err)
+		return
+	}
+
+	for _, item := range items {
+
+		ratingResultMap, err := tg.generateRatingResultMap(&item.FeedItem)
+
+		if err != nil {
+			log.Printf("Error generating rating %s: %v\n", item.Source, err)
+			continue
+		}
+
+		// If item is not found, save it
+		err = tg.Storage.SaveItem(&model.ItemComposite{
+			FeedItem: item.FeedItem,
+			Results:  ratingResultMap,
+		})
+		if err != nil {
+			log.Printf("Error writing to database: %v\n", err)
+		}
+
+		log.Printf("Saved item: %s\n", item.Title)
 	}
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
-
-	if tg.ReGenerate {
-		tg.Storage.RemoveAllRatings()
-	}
+func (tg *TrendGenerator) generateRatingResultMap(item *model.FeedItem) (model.RatingResultMap, error) {
+	ratingResultMap := make(model.RatingResultMap)
 
 	for _, ratingPrompt := range tg.RatingPrompts {
-		guids, err := tg.Storage.GetItemsWithoutRating(ratingPrompt.SubjectName, ratingPrompt.InsightName)
+
+		ratingResult, err := tg.generateSingleRatingScore(tg.Context, ratingPrompt, item)
 
 		if err != nil {
-			log.Printf("Error getting articles without rating: %v\n", err)
-			continue
+			return nil, err
 		}
 
-		for _, guid := range guids {
-			item, err := tg.Storage.FindItem(guid)
-
-			if err != nil {
-				log.Printf("Error getting item by guid: %v\n", err)
-				continue
-			}
-
-			if item == nil {
-				log.Printf("Item not found.")
-				continue
-			}
-
-			ratingResult, err := tg.generateSingleRatingScore(ctx, ratingPrompt, &item.FeedItem)
-
-			if err != nil {
-				log.Printf("Error generating rating: %v\n", err)
-				continue
-			}
-
-			err = tg.Storage.AddRating(guid, ratingResult)
-			if err != nil {
-				log.Printf("Error saving rating: %v\n", err)
-			}
-
-			log.Printf("Generated rating for item: %s\n", item.Title)
-		}
+		ratingResultMap[ratingResult.GetKey()] = ratingResult
 	}
+
+	return ratingResultMap, nil
 }
 
 // ReadFeeds reads feed items from the feeds.
