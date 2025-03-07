@@ -37,6 +37,18 @@ To generate trends, use the following command:
 go run .\cmd\trendview generate -config .\config\global-rating-configuration.json -datafile .\data\global.db -loop
 ```
 
+### Run the Web Server Locally
+
+To run the web server, use the following command:
+
+```sh
+go run .\cmd\trendview serve -datafile .\data\global.db
+```
+
+Once the server is running, you can access the endpoint on your local machine at:
+
+[http://localhost:8081/](http://localhost:8081/)
+
 ### Convert to CSV
 
 To convert the data to a CSV file, use the following command:
@@ -91,11 +103,3 @@ go clean -testcache; go test ./...
 }
 ```
 
-
-## Endpoints exposed:
-
-`http://localhost:8080/itemsBySubject?subject=Bitcoin`
-
-`http://localhost:8080/subjects`
-
-`http://localhost:8080/raw`
