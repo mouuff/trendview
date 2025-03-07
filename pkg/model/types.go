@@ -5,7 +5,7 @@ import (
 )
 
 // The processing item state
-type ItemState map[string]*ItemComposite
+type ItemCompositeMap map[string]*ItemComposite
 type RatingResultMap map[string]*RatingResult
 
 type FeedItem struct {

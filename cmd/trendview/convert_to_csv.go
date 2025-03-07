@@ -85,7 +85,7 @@ func (cmd *ConvertToCsv) Run() error {
 	return nil
 }
 
-func computeIdentifiers(data model.ItemState) []string {
+func computeIdentifiers(data model.ItemCompositeMap) []string {
 	identifiers := []string{}
 	for _, item := range data {
 		for identifier := range item.Results {

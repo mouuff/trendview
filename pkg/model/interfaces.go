@@ -6,7 +6,7 @@ import "context"
 type ItemStore interface {
 	SaveItem(item *ItemComposite) error
 	FindItem(guid string) (*ItemComposite, error)
-	FindItems() (ItemState, error)
+	FindItems() (ItemCompositeMap, error)
 	UpdateResults(item *ItemComposite) error
 	Close()
 }

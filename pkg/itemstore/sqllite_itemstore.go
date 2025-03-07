@@ -184,8 +184,8 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 }
 
 // FindItems retrieves all ItemComposites as a map keyed by GUID
-func (s *SQLiteItemStore) FindItems() (model.ItemState, error) {
-	items := make(model.ItemState)
+func (s *SQLiteItemStore) FindItems() (model.ItemCompositeMap, error) {
+	items := make(model.ItemCompositeMap)
 
 	rows, err := s.db.Query(`
         SELECT guid, title, content, datetime, link, source
