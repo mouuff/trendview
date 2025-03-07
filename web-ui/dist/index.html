@@ -42,6 +42,7 @@
             position: relative;
             height: 600px;
             width: 100%;
+            margin-bottom: 20px;
         }
 
         .tooltip {
@@ -58,6 +59,37 @@
         h1 {
             color: #333;
             margin-bottom: 20px;
+        }
+
+        .news-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .news-table th,
+        .news-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .news-table th {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .news-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .news-table a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .news-table a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -88,6 +120,16 @@
             <canvas id="dataChart"></canvas>
             <div id="tooltip" class="tooltip"></div>
         </div>
+        <table class="news-table" id="newsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th id="valueHeader">Value</th>
+                </tr>
+            </thead>
+            <tbody id="newsTableBody"></tbody>
+        </table>
     </div>
 
     <script>
@@ -193,6 +235,27 @@
             return averages;
         }
 
+        // Update table with current data
+        function updateTable(dataPoints, yAxis) {
+            const tbody = document.getElementById('newsTableBody');
+            const valueHeader = document.getElementById('valueHeader');
+            valueHeader.textContent = yAxis;
+            
+            // Sort by Y-axis value descending
+            dataPoints.sort((a, b) => b.y - a.y);
+
+            tbody.innerHTML = '';
+            dataPoints.forEach(point => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${point.x.toLocaleDateString()}</td>
+                    <td><a href="${point.link}" target="_blank">${point.title}</a></td>
+                    <td>${point.y}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         // Update chart with current data
         function updateChart() {
             const subject = document.getElementById('subjectSelect').value;
@@ -228,11 +291,11 @@
                 dataPoints = dataPoints.filter(point => point.x <= end);
             }
 
-            // Sort by date
-            dataPoints.sort((a, b) => a.x - b.x);
+            // Sort by date for chart
+            const chartPoints = [...dataPoints].sort((a, b) => a.x - b.x);
 
             // Calculate moving average
-            const movingAverage = calculateMovingAverage(dataPoints);
+            const movingAverage = calculateMovingAverage(chartPoints);
 
             if (chart) chart.destroy();
 
@@ -242,7 +305,7 @@
                     datasets: [
                         {
                             label: `${yAxis} Data Points`,
-                            data: dataPoints,
+                            data: chartPoints,
                             type: 'scatter',
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
@@ -292,17 +355,17 @@
                         }
                     },
                     onClick: (event, elements) => {
-                        if (elements.length > 0 && elements[0].datasetIndex === 0) { // Only for scatter points
+                        if (elements.length > 0 && elements[0].datasetIndex === 0) {
                             const index = elements[0].index;
-                            const point = dataPoints[index];
+                            const point = chartPoints[index];
                             window.open(point.link, '_blank');
                         }
                     },
                     onHover: (event, elements) => {
                         const tooltip = document.getElementById('tooltip');
-                        if (elements.length > 0 && elements[0].datasetIndex === 0) { // Only for scatter points
+                        if (elements.length > 0 && elements[0].datasetIndex === 0) {
                             const index = elements[0].index;
-                            const point = dataPoints[index];
+                            const point = chartPoints[index];
                             tooltip.style.display = 'block';
                             tooltip.style.left = `${event.x + 10}px`;
                             tooltip.style.top = `${event.y + 10}px`;
@@ -313,6 +376,9 @@
                     }
                 }
             });
+
+            // Update table
+            updateTable(dataPoints, yAxis);
         }
 
         // Load initial data
