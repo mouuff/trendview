@@ -37,26 +37,10 @@ func (tg *TrendGenerator) Execute() error {
 		}
 
 		for _, item := range feedItems {
-
-			if item.GUID == "" {
-				log.Printf("Empty item GUID skipping...\n")
-				continue
-			}
-
-			ratingResultMap, err := tg.generateRatingResultMap(&item)
-
+			err := tg.ProcessItem(&item)
 			if err != nil {
-				log.Printf("Error generating rating %s: %v\n", feed.GetSource(), err)
+				log.Printf("Error processing item: %v\n", err)
 				continue
-			}
-
-			// If item is not found, save it
-			err = tg.Storage.SaveItem(&model.ItemComposite{
-				FeedItem: item,
-				Results:  ratingResultMap,
-			})
-			if err != nil {
-				log.Printf("Error writing to database: %v\n", err)
 			}
 
 			log.Printf("Saved item: %s\n", item.Title)
@@ -75,25 +59,39 @@ func (tg *TrendGenerator) ReGenerate() {
 	}
 
 	for _, item := range items {
-
-		ratingResultMap, err := tg.generateRatingResultMap(&item.FeedItem)
-
+		err := tg.ProcessItem(&item.FeedItem)
 		if err != nil {
-			log.Printf("Error generating rating %s: %v\n", item.Source, err)
+			log.Printf("Error processing item: %v\n", err)
 			continue
-		}
-
-		// If item is not found, save it
-		err = tg.Storage.SaveItem(&model.ItemComposite{
-			FeedItem: item.FeedItem,
-			Results:  ratingResultMap,
-		})
-		if err != nil {
-			log.Printf("Error writing to database: %v\n", err)
 		}
 
 		log.Printf("Saved item: %s\n", item.Title)
 	}
+}
+
+// ReadFeeds reads feed items from the feeds.
+func (tg *TrendGenerator) ProcessItem(item *model.FeedItem) error {
+
+	if item.GUID == "" {
+		return fmt.Errorf("empty item GUID")
+	}
+
+	ratingResultMap, err := tg.generateRatingResultMap(item)
+
+	if err != nil {
+		return fmt.Errorf("error generating rating %s: %v", item.Source, err)
+	}
+
+	// If item is not found, save it
+	err = tg.Storage.SaveItem(&model.ItemComposite{
+		FeedItem: *item,
+		Results:  ratingResultMap,
+	})
+	if err != nil {
+		return fmt.Errorf("error writing to database: %v", err)
+	}
+
+	return nil
 }
 
 // ReadFeeds reads feed items from the feeds.
