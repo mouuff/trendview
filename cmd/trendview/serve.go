@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/mouuff/TrendView/pkg/itemstore"
 )
@@ -42,6 +45,36 @@ func (cmd *Serve) Run() error {
 		return err
 	}
 	defer storage.Close()
+
+	http.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+		// Only allow GET requests
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Fetch all items
+		items, err := storage.FindItems()
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to fetch items: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		// Set JSON content type
+		w.Header().Set("Content-Type", "application/json")
+
+		// Encode and send the response
+		if err := json.NewEncoder(w).Encode(items); err != nil {
+			http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	})
+
+	// Start the server
+	log.Println("Server starting on :8080...")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 
 	return nil
 }
