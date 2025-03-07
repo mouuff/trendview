@@ -6,7 +6,7 @@ import (
 
 // The processing item state
 type ItemState map[string]*ItemComposite
-type RatingResultDict map[string]*RatingResult
+type RatingResultMap map[string]*RatingResult
 
 type FeedItem struct {
 	Title    string
@@ -26,7 +26,7 @@ type RatingResult struct {
 // ItemComposite is a feed item with all the generated results
 type ItemComposite struct {
 	FeedItem
-	Results RatingResultDict
+	Results RatingResultMap
 }
 
 type RatingPrompt struct {

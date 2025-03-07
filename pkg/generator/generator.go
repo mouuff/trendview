@@ -82,7 +82,7 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 	for _, item := range items {
 
 		if item.Results == nil || tg.ReGenerate {
-			item.Results = make(map[string]*model.RatingResult)
+			item.Results = make(model.RatingResultMap)
 		}
 
 		log.Printf("Generating rating for item: %s\n", item.Title)

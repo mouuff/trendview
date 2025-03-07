@@ -169,7 +169,7 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 	}
 	defer rows.Close()
 
-	item.Results = make(map[string]*model.RatingResult)
+	item.Results = make(model.RatingResultMap)
 	for rows.Next() {
 		var result model.RatingResult
 		err := rows.Scan(&result.SubjectName, &result.InsightName, &result.Value)
@@ -208,7 +208,7 @@ func (s *SQLiteItemStore) FindItems() (map[string]*model.ItemComposite, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse datetime: %v", err)
 		}
-		item.Results = make(map[string]*model.RatingResult)
+		item.Results = make(model.RatingResultMap)
 		items[item.GUID] = &item
 	}
 	if err := rows.Err(); err != nil {

@@ -31,7 +31,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			GUID:     "https://test.com/article",
 			Source:   "test.com",
 		},
-		Results: map[string]*model.RatingResult{
+		Results: model.RatingResultMap{
 			"Microsoft-Confidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 50},
 			"Microsoft-Relevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 20},
 		},
@@ -98,7 +98,7 @@ func TestSQLiteItemStore(t *testing.T) {
 				GUID:     "https://test.com/article2",
 				Source:   "test.com",
 			},
-			Results: map[string]*model.RatingResult{
+			Results: model.RatingResultMap{
 				"Google-Confidence": {SubjectName: "Google", InsightName: "Confidence", Value: 80},
 			},
 		}
@@ -154,7 +154,7 @@ func TestSQLiteItemStore(t *testing.T) {
 				GUID:     sampleItem.GUID,
 				Source:   sampleItem.Source,
 			},
-			Results: map[string]*model.RatingResult{
+			Results: model.RatingResultMap{
 				"Microsoft-Confidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 75},
 				"Microsoft-Relevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 30},
 				"Google-Confidence":    {SubjectName: "Google", InsightName: "Confidence", Value: 60},
