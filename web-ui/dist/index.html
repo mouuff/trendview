@@ -1,1 +1,301 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Big money gen</title><script defer="defer" src="main.js"></script></head><body><div id="app"></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subject Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select, input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 600px;
+            width: 100%;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            display: none;
+            max-width: 300px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Subject Data Visualization</h1>
+        <div class="controls">
+            <select id="subjectSelect"></select>
+            <select id="yAxisSelect">
+                <option value="Confidence">Confidence</option>
+                <option value="Relevance">Relevance</option>
+            </select>
+            <input type="number" id="filterValue" placeholder="Filter value" min="0" max="100">
+            <select id="filterType">
+                <option value="Confidence">Filter by Confidence</option>
+                <option value="Relevance">Filter by Relevance</option>
+            </select>
+            <input type="date" id="startDate" placeholder="Start Date">
+            <input type="date" id="endDate" placeholder="End Date">
+            <select id="datePreset">
+                <option value="all">All Time</option>
+                <option value="24h">Past 24 Hours</option>
+                <option value="week">Past Week</option>
+                <option value="month">Past Month</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <canvas id="dataChart"></canvas>
+            <div id="tooltip" class="tooltip"></div>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        let allData = {};
+
+        // Initialize the page
+        async function init() {
+            await loadSubjects();
+            setupEventListeners();
+            await loadInitialData();
+        }
+
+        // Load subjects from endpoint
+        async function loadSubjects() {
+            try {
+                const response = await fetch('/subjects');
+                const subjects = await response.json();
+                const select = document.getElementById('subjectSelect');
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            }
+        }
+
+        // Load data for selected subject
+        async function loadData(subject) {
+            try {
+                const response = await fetch(`/itemsBySubject?subject=${subject}`);
+                const data = await response.json();
+                allData[subject] = data.Items;
+                updateChart();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('subjectSelect').addEventListener('change', (e) => {
+                loadData(e.target.value);
+            });
+            document.getElementById('yAxisSelect').addEventListener('change', updateChart);
+            document.getElementById('filterValue').addEventListener('input', updateChart);
+            document.getElementById('filterType').addEventListener('change', updateChart);
+            document.getElementById('startDate').addEventListener('change', updateChart);
+            document.getElementById('endDate').addEventListener('change', updateChart);
+            document.getElementById('datePreset').addEventListener('change', (e) => {
+                applyDatePreset(e.target.value);
+                updateChart();
+            });
+        }
+
+        // Apply date preset
+        function applyDatePreset(preset) {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const now = new Date();
+            
+            switch(preset) {
+                case '24h':
+                    startDateInput.value = formatDate(new Date(now - 24 * 60 * 60 * 1000));
+                    endDateInput.value = formatDate(now);
+                    break;
+                case 'week':
+                    startDateInput.value = formatDate(new Date(now - 7 * 24 * 60 * 60 * 1000));
+                    endDateInput.value = formatDate(now);
+                    break;
+                case 'month':
+                    startDateInput.value = formatDate(new Date(now - 30 * 24 * 60 * 60 * 1000));
+                    endDateInput.value = formatDate(now);
+                    break;
+                case 'all':
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                    break;
+            }
+        }
+
+        // Format date to YYYY-MM-DD
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Update chart with current data
+        function updateChart() {
+            const subject = document.getElementById('subjectSelect').value;
+            const yAxis = document.getElementById('yAxisSelect').value;
+            const filterValue = document.getElementById('filterValue').value;
+            const filterType = document.getElementById('filterType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const items = allData[subject] || {};
+            let dataPoints = Object.entries(items).map(([link, item]) => ({
+                x: new Date(item.DateTime),
+                y: item.Results[yAxis],
+                title: item.Title,
+                link: item.Link,
+                content: item.Content,
+                filterValue: item.Results[filterType]
+            }));
+
+            // Apply numeric filter
+            if (filterValue) {
+                dataPoints = dataPoints.filter(point => point.filterValue >= parseInt(filterValue));
+            }
+
+            // Apply date filter
+            if (startDate) {
+                const start = new Date(startDate);
+                dataPoints = dataPoints.filter(point => point.x >= start);
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999); // Include whole end day
+                dataPoints = dataPoints.filter(point => point.x <= end);
+            }
+
+            // Sort by date
+            dataPoints.sort((a, b) => a.x - b.x);
+
+            if (chart) chart.destroy();
+
+            chart = new Chart(document.getElementById('dataChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: `${yAxis} over Time`,
+                        data: dataPoints,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM d, yyyy'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: yAxis
+                            },
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const point = dataPoints[index];
+                            window.open(point.link, '_blank');
+                        }
+                    },
+                    onHover: (event, elements) => {
+                        const tooltip = document.getElementById('tooltip');
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const point = dataPoints[index];
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = `${event.x + 10}px`;
+                            tooltip.style.top = `${event.y + 10}px`;
+                            tooltip.innerHTML = `
+                                <strong>${point.title}</strong><br>
+                                ${point.content}<br>
+                                ${yAxis}: ${point.y}<br>
+                                Date: ${point.x.toLocaleDateString()}
+                            `;
+                        } else {
+                            tooltip.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            const subject = document.getElementById('subjectSelect').value;
+            if (subject) await loadData(subject);
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
