@@ -32,7 +32,7 @@ func (cmd *Migrate) Init(args []string) error {
 
 // Run runs the command
 func (cmd *Migrate) Run() error {
-	log.Println("Generating trend...")
+	log.Println("Migrating...")
 
 	if cmd.jsonfile == "" {
 		log.Println("Please pass the jsonfile file using -jsonfile")
