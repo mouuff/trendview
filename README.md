@@ -6,6 +6,8 @@ TrendView is a tool that leverages AI to analyze and visualize trends.
 
 This project is currently in the prototype stage. It was built rapidly over a few days but is designed to be modular and extendable, allowing for future enhancements and integrations.
 
+You can easily set up and run this project entirely locally.
+
 ## Prerequisites
 
 Before using TrendView, ensure you have the following installed:
