@@ -22,7 +22,6 @@ func RunSubCommand(args []string) error {
 	cmds := []SubCommand{
 		&GenerateTrend{},
 		&ConvertToCsv{},
-		&Migrate{},
 	}
 
 	if len(args) < 1 {

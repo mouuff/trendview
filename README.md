@@ -34,7 +34,7 @@ Below is an example of the calculated confidence in Bitcoin based on recent news
 To generate trends, use the following command:
 
 ```sh
-go run .\cmd\trendview generate -config .\config\global-rating-configuration.json -datafile .\data\global-rating-data.json -loop
+go run .\cmd\trendview generate -config .\config\global-rating-configuration.json -datafile .\data\global.db -loop
 ```
 
 ### Convert to CSV
@@ -42,7 +42,7 @@ go run .\cmd\trendview generate -config .\config\global-rating-configuration.jso
 To convert the data to a CSV file, use the following command:
 
 ```sh
-go run .\cmd\trendview convert-to-csv -datafile .\data\global-rating-data.json > .\data\global-rating-data.csv
+go run .\cmd\trendview convert-to-csv -datafile .\data\global.db > .\data\global.csv
 ```
 
 ### Run Unit Tests
