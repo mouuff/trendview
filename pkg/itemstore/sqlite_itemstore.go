@@ -92,8 +92,8 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	return tx.Commit()
 }
 
-// FindItem retrieves an ItemComposite by GUID
-func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
+// GetItem retrieves an ItemComposite by GUID
+func (s *SQLiteItemStore) GetItem(guid string) (*model.ItemComposite, error) {
 	var item model.ItemComposite
 	var datetimeStr string // Temporary string to hold the datetime value
 
@@ -161,8 +161,8 @@ func (s *SQLiteItemStore) GetSubjects() ([]string, error) {
 	return subjects, rows.Err()
 }
 
-// FindItems retrieves all ItemComposites as a map keyed by GUID
-func (s *SQLiteItemStore) FindItems() (model.ItemCompositeMap, error) {
+// GetItems retrieves all ItemComposites as a map keyed by GUID
+func (s *SQLiteItemStore) GetItems() (model.ItemCompositeMap, error) {
 	items := make(model.ItemCompositeMap)
 
 	rows, err := s.db.Query(`

@@ -74,7 +74,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			t.Errorf("SaveItem failed: %v", err)
 		}
 
-		found, err := store.FindItem(sampleItem.GUID)
+		found, err := store.GetItem(sampleItem.GUID)
 		if err != nil {
 			t.Errorf("FindItem failed after save: %v", err)
 		}
@@ -94,7 +94,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			t.Fatalf("Setup failed: %v", err)
 		}
 
-		found, err := store.FindItem(sampleItem.GUID)
+		found, err := store.GetItem(sampleItem.GUID)
 		if err != nil {
 			t.Errorf("FindItem failed: %v", err)
 		}
@@ -105,7 +105,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			t.Errorf("Found item mismatch: got %v, want %v", found, sampleItem)
 		}
 
-		nonExistent, err := store.FindItem("non-existent-guid")
+		nonExistent, err := store.GetItem("non-existent-guid")
 		if err != nil {
 			t.Errorf("FindItem failed for non-existent: %v", err)
 		}
@@ -139,7 +139,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			t.Fatalf("Setup failed for second item: %v", err)
 		}
 
-		items, err := store.FindItems()
+		items, err := store.GetItems()
 		if err != nil {
 			t.Errorf("FindItems failed: %v", err)
 		}
@@ -160,7 +160,7 @@ func TestSQLiteItemStore(t *testing.T) {
 
 		store.Close()
 
-		_, err := store.FindItems()
+		_, err := store.GetItems()
 		if err == nil {
 			t.Error("Expected error after closing database, got nil")
 		}
@@ -193,7 +193,7 @@ func TestSQLiteItemStore(t *testing.T) {
 			t.Errorf("SaveItem failed for update: %v", err)
 		}
 
-		found, err := store.FindItem(sampleItem.GUID)
+		found, err := store.GetItem(sampleItem.GUID)
 		if err != nil {
 			t.Errorf("FindItem failed after update: %v", err)
 		}

@@ -45,7 +45,7 @@ func (cmd *ConvertToCsv) Run() error {
 		return err
 	}
 
-	data, err := storage.FindItems()
+	data, err := storage.GetItems()
 
 	if err != nil {
 		return err

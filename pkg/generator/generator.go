@@ -37,12 +37,11 @@ func (tg *TrendGenerator) Execute() error {
 		}
 
 		for _, item := range feedItems {
-
 			if item.GUID == "" {
 				return fmt.Errorf("empty item GUID")
 			}
 
-			foundItem, err := tg.Storage.FindItem(item.GUID)
+			foundItem, err := tg.Storage.GetItem(item.GUID)
 			if err != nil {
 				log.Printf("Error reading database: %v\n", err)
 			}
@@ -64,7 +63,7 @@ func (tg *TrendGenerator) Execute() error {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) ReGenerate() {
-	items, err := tg.Storage.FindItems()
+	items, err := tg.Storage.GetItems()
 
 	if err != nil {
 		log.Printf("Error getting items: %v\n", err)

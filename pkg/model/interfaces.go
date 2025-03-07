@@ -5,8 +5,8 @@ import "context"
 // ItemStore is the interface for storing items
 type ItemStore interface {
 	SaveItem(item *ItemComposite) error
-	FindItem(guid string) (*ItemComposite, error)
-	FindItems() (ItemCompositeMap, error)
+	GetItem(guid string) (*ItemComposite, error)
+	GetItems() (ItemCompositeMap, error)
 	GetSubjects() ([]string, error)
 	GetItemsWithoutRating(subject, insight string) ([]string, error)
 	GetResultsCount() (int, error)

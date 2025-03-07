@@ -102,7 +102,7 @@ func (cmd *Serve) Run() error {
 		}
 
 		// Fetch all items
-		items, err := storage.FindItems()
+		items, err := storage.GetItems()
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to fetch items: %v", err), http.StatusInternalServerError)
 			return
@@ -128,7 +128,7 @@ func (cmd *Serve) Run() error {
 		}
 
 		// Fetch all items
-		items, err := storage.FindItems()
+		items, err := storage.GetItems()
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Failed to fetch items: %v", err), http.StatusInternalServerError)
 			return
