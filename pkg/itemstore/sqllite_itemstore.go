@@ -176,8 +176,8 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 		if err != nil {
 			return nil, err
 		}
-		key := fmt.Sprintf("%s%s", result.SubjectName, result.InsightName)
-		item.Results[key] = &result
+
+		item.Results[result.GetKey()] = &result
 	}
 
 	return &item, rows.Err()
@@ -255,8 +255,8 @@ func (s *SQLiteItemStore) FindItems() (model.ItemCompositeMap, error) {
 			return nil, err
 		}
 		if item, exists := items[guid]; exists {
-			key := fmt.Sprintf("%s%s", subjectName, insightName)
-			item.Results[key] = &model.RatingResult{SubjectName: subjectName, InsightName: insightName, Value: value}
+			ratingResult := &model.RatingResult{SubjectName: subjectName, InsightName: insightName, Value: value}
+			item.Results[ratingResult.GetKey()] = ratingResult
 		}
 	}
 

@@ -107,9 +107,6 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 	if ratingPrompt.BasePrompt == "" {
 		return fmt.Errorf("variable BasePrompt is required for rating prompt")
 	}
-	if ratingPrompt.Identifier == "" {
-		return fmt.Errorf("variable Identifier is required for rating prompt")
-	}
 	if ratingPrompt.SubjectName == "" {
 		return fmt.Errorf("variable SubjectName is required for rating prompt")
 	}
@@ -117,7 +114,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 		return fmt.Errorf("variable InsightName is required for rating prompt")
 	}
 
-	_, resultExists := item.Results[ratingPrompt.Identifier]
+	_, resultExists := item.Results[ratingPrompt.GetKey()]
 
 	if !resultExists || tg.ReGenerate {
 		prompt := ratingPrompt.BasePrompt + item.Title
@@ -132,7 +129,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 			return err
 		}
 
-		item.Results[ratingPrompt.Identifier] = &model.RatingResult{
+		item.Results[ratingPrompt.GetKey()] = &model.RatingResult{
 			SubjectName: ratingPrompt.SubjectName,
 			InsightName: ratingPrompt.InsightName,
 			Value:       ratingValue,

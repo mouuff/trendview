@@ -7,13 +7,11 @@
     ],
     "RatingPrompts": [
       {
-        "Identifier": "BitcoinConfidence",
         "SubjectName": "Bitcoin",
         "InsightName": "Confidence",
         "BasePrompt": "Based solely on the news below, rate your confidence in investing in Bitcoin from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. If the news isn't relevant, score it 50. News: "
       },
       {
-        "Identifier": "BitcoinRelevance",
         "SubjectName": "Bitcoin",
         "InsightName": "Relevance",
         "BasePrompt": "Based exclusively on the news provided below, evaluate the potential connection to Bitcoin's price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: "
