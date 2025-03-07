@@ -10,6 +10,7 @@ import (
 
 	"github.com/mouuff/TrendView/pkg/itemstore"
 	"github.com/mouuff/TrendView/pkg/model"
+    "github.com/rs/cors"
 )
 
 // ItemComposite is a feed item with all the generated results
@@ -57,7 +58,10 @@ func (cmd *Serve) Run() error {
 	}
 	defer storage.Close()
 
-	http.HandleFunc("/subjects", func(w http.ResponseWriter, r *http.Request) {
+
+    mux := http.NewServeMux()
+
+	mux.HandleFunc("/subjects", func(w http.ResponseWriter, r *http.Request) {
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -81,7 +85,7 @@ func (cmd *Serve) Run() error {
 		}
 	})
 
-	http.HandleFunc("/itemsBySubject", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/itemsBySubject", func(w http.ResponseWriter, r *http.Request) {
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -114,7 +118,7 @@ func (cmd *Serve) Run() error {
 		}
 	})
 
-	http.HandleFunc("/raw", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/raw", func(w http.ResponseWriter, r *http.Request) {
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -130,7 +134,6 @@ func (cmd *Serve) Run() error {
 
 		// Set JSON content type
 		w.Header().Set("Content-Type", "application/json")
-
 		// Encode and send the response
 		if err := json.NewEncoder(w).Encode(items); err != nil {
 			http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
@@ -139,8 +142,9 @@ func (cmd *Serve) Run() error {
 	})
 
 	// Start the server
-	log.Println("Server starting on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Println("Server starting on :8081...")
+    handler := cors.Default().Handler(mux)
+	if err := http.ListenAndServe(":8081", handler); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 
