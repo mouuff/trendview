@@ -7,8 +7,11 @@ type ItemStore interface {
 	SaveItem(item *ItemComposite) error
 	FindItem(guid string) (*ItemComposite, error)
 	FindItems() (ItemCompositeMap, error)
-	UpdateResults(item *ItemComposite) error
 	GetSubjects() ([]string, error)
+	GetItemsWithoutRating(subject, insight string) ([]string, error)
+	AddRating(articleGuid string, ratingResult *RatingResult) error
+	RemoveAllRatings() error
+	GetResultsCount() (int, error)
 	Close()
 }
 

@@ -92,49 +92,11 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	return tx.Commit()
 }
 
-// UpdateResults updates only the results for an existing item by GUID
-func (s *SQLiteItemStore) UpdateResults(item *model.ItemComposite) error {
-	// Check if the item exists in feed_items first
-	var exists bool
-	err := s.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, item.GUID).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("no item found with GUID: %s", item.GUID)
-	}
-
-	// Use a transaction to update results
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	// Delete existing results for this GUID
-	_, err = tx.Exec(`DELETE FROM results WHERE article_guid = ?`, item.GUID)
-	if err != nil {
-		return err
-	}
-
-	// Insert new results
-	stmt, err := tx.Prepare(`
-        INSERT INTO results (article_guid, subject_name, insight_name, value)
-        VALUES (?, ?, ?, ?)
-    `)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	for _, result := range item.Results {
-		_, err = stmt.Exec(item.GUID, result.SubjectName, result.InsightName, result.Value)
-		if err != nil {
-			return err
-		}
-	}
-
-	return tx.Commit()
+// Helper function to count rows in results table
+func (s *SQLiteItemStore) GetResultsCount() (int, error) {
+	var count int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM results`).Scan(&count)
+	return count, err
 }
 
 // FindItem retrieves an ItemComposite by GUID
@@ -261,6 +223,81 @@ func (s *SQLiteItemStore) FindItems() (model.ItemCompositeMap, error) {
 	}
 
 	return items, rows.Err()
+}
+
+// GetItemsWithoutRating retrieves all article GUIDs that do not have a rating for the given subject and insight
+func (s *SQLiteItemStore) GetItemsWithoutRating(subject, insight string) ([]string, error) {
+	rows, err := s.db.Query(`
+        SELECT guid
+        FROM feed_items
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM results
+            WHERE results.article_guid = feed_items.guid
+            AND results.subject_name = ?
+            AND results.insight_name = ?
+        )
+        ORDER BY guid
+    `, subject, insight)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var guids []string
+	for rows.Next() {
+		var guid string
+		if err := rows.Scan(&guid); err != nil {
+			return nil, err
+		}
+		guids = append(guids, guid)
+	}
+
+	return guids, rows.Err()
+}
+
+// RemoveAllRatings deletes all entries from the results table
+func (s *SQLiteItemStore) RemoveAllRatings() error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`DELETE FROM results`)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// AddRating adds a single rating for an article by GUID
+func (s *SQLiteItemStore) AddRating(articleGuid string, ratingResult *model.RatingResult) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var exists bool
+	err = tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, articleGuid).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("no article found with GUID: %s", articleGuid)
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO results (article_guid, subject_name, insight_name, value)
+		VALUES (?, ?, ?, ?)
+	`, articleGuid, ratingResult.SubjectName, ratingResult.InsightName, ratingResult.Value)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // Close shuts down the database connection

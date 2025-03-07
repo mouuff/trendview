@@ -32,8 +32,8 @@ func TestSQLiteItemStore(t *testing.T) {
 			Source:   "test.com",
 		},
 		Results: model.RatingResultMap{
-			"Microsoft-Confidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 50},
-			"Microsoft-Relevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 20},
+			"MicrosoftConfidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 50},
+			"MicrosoftRelevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 20},
 		},
 	}
 
@@ -128,7 +128,7 @@ func TestSQLiteItemStore(t *testing.T) {
 				Source:   "test.com",
 			},
 			Results: model.RatingResultMap{
-				"Google-Confidence": {SubjectName: "Google", InsightName: "Confidence", Value: 80},
+				"GoogleConfidence": {SubjectName: "Google", InsightName: "Confidence", Value: 80},
 			},
 		}
 
@@ -166,6 +166,66 @@ func TestSQLiteItemStore(t *testing.T) {
 		}
 	})
 
+	t.Run("EmptyTable", func(t *testing.T) {
+		store := newStore(t)
+		defer store.Close()
+
+		count, err := store.GetResultsCount()
+		if err != nil {
+			t.Fatalf("Failed to count results: %v", err)
+		}
+		if count != 3 {
+			t.Errorf("Expected 3 ratings before removal, got %d", count)
+		}
+
+		// Test removing ratings from an empty table
+		if err := store.RemoveAllRatings(); err != nil {
+			t.Errorf("RemoveAllRatings failed on empty table: %v", err)
+		}
+
+		// Verify no ratings exist (should already be true)
+		count, err = store.GetResultsCount()
+		if err != nil {
+			t.Fatalf("Failed to count results: %v", err)
+		}
+		if count != 0 {
+			t.Errorf("Expected 0 ratings after removal, got %d", count)
+		}
+	})
+
+	t.Run("AddToExistingArticle", func(t *testing.T) {
+		store := newStore(t)
+		defer store.Close()
+
+		// Add an article without ratings
+		if err := store.SaveItem(sampleItem); err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		count, err := store.GetResultsCount()
+		if err != nil {
+			t.Fatalf("Failed to count results: %v", err)
+		}
+		if count != 2 {
+			t.Errorf("Expected 2 ratings before adding rating, got %d", count)
+		}
+
+		// Add a rating
+		ratingResult := &model.RatingResult{SubjectName: "Subject", InsightName: "Insight", Value: 40}
+		if err := store.AddRating(sampleItem.GUID, ratingResult); err != nil {
+			t.Errorf("AddRating failed: %v", err)
+		}
+
+		// Verify count
+		count, err = store.GetResultsCount()
+		if err != nil {
+			t.Fatalf("Failed to count results: %v", err)
+		}
+		if count != 3 {
+			t.Errorf("Expected 3 rating, got %d", count)
+		}
+	})
+
 	t.Run("SaveItem_Update", func(t *testing.T) {
 		store := newStore(t)
 		defer store.Close()
@@ -184,9 +244,9 @@ func TestSQLiteItemStore(t *testing.T) {
 				Source:   sampleItem.Source,
 			},
 			Results: model.RatingResultMap{
-				"Microsoft-Confidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 75},
-				"Microsoft-Relevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 30},
-				"Google-Confidence":    {SubjectName: "Google", InsightName: "Confidence", Value: 60},
+				"MicrosoftConfidence": {SubjectName: "Microsoft", InsightName: "Confidence", Value: 75},
+				"MicrosoftRelevance":  {SubjectName: "Microsoft", InsightName: "Relevance", Value: 30},
+				"GoogleConfidence":    {SubjectName: "Google", InsightName: "Confidence", Value: 60},
 			},
 		}
 		if err := store.SaveItem(updatedItem); err != nil {

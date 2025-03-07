@@ -72,36 +72,45 @@ func (tg *TrendGenerator) readFeeds() {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
-	// TODO query only items that need to be updated
-	// Don't forget to take "ReGenerate" into account
-	items, err := tg.Storage.FindItems()
-	if err != nil {
-		log.Printf("Error reading database: %v\n", err)
+
+	if tg.ReGenerate {
+		tg.Storage.RemoveAllRatings()
 	}
 
-	for _, item := range items {
-		shouldUpdateResults := false
+	for _, ratingPrompt := range tg.RatingPrompts {
+		guids, err := tg.Storage.GetItemsWithoutRating(ratingPrompt.SubjectName, ratingPrompt.InsightName)
 
-		if item.Results == nil || tg.ReGenerate {
-			item.Results = make(model.RatingResultMap)
+		if err != nil {
+			log.Printf("Error getting articles without rating: %v\n", err)
+			continue
 		}
 
-		for _, ratingPrompt := range tg.RatingPrompts {
-			updated, err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
+		for _, guid := range guids {
+			item, err := tg.Storage.FindItem(guid)
+
+			if err != nil {
+				log.Printf("Error getting item by guid: %v\n", err)
+				continue
+			}
+
+			if item == nil {
+				log.Printf("Item not found.")
+				continue
+			}
+
+			ratingResult, err := tg.generateSingleRatingScore(ctx, ratingPrompt, &item.FeedItem)
+
 			if err != nil {
 				log.Printf("Error generating rating: %v\n", err)
 				continue
 			}
 
-			shouldUpdateResults = shouldUpdateResults || updated
-		}
-
-		if shouldUpdateResults {
-			log.Printf("Generated rating for item: %s\n", item.Title)
-			err = tg.Storage.UpdateResults(item)
+			err = tg.Storage.AddRating(guid, ratingResult)
 			if err != nil {
 				log.Printf("Error saving rating: %v\n", err)
 			}
+
+			log.Printf("Generated rating for item: %s\n", item.Title)
 		}
 	}
 }
@@ -110,41 +119,33 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 func (tg *TrendGenerator) generateSingleRatingScore(
 	ctx context.Context,
 	ratingPrompt model.RatingPrompt,
-	item *model.ItemComposite) (bool, error) {
+	item *model.FeedItem) (*model.RatingResult, error) {
 	if ratingPrompt.BasePrompt == "" {
-		return false, fmt.Errorf("variable BasePrompt is required for rating prompt")
+		return nil, fmt.Errorf("variable BasePrompt is required for rating prompt")
 	}
 	if ratingPrompt.SubjectName == "" {
-		return false, fmt.Errorf("variable SubjectName is required for rating prompt")
+		return nil, fmt.Errorf("variable SubjectName is required for rating prompt")
 	}
 	if ratingPrompt.InsightName == "" {
-		return false, fmt.Errorf("variable InsightName is required for rating prompt")
+		return nil, fmt.Errorf("variable InsightName is required for rating prompt")
 	}
 
-	_, resultExists := item.Results[ratingPrompt.GetKey()]
+	// TODO make this configurable
+	prompt := ratingPrompt.BasePrompt + item.Title
 
-	if !resultExists || tg.ReGenerate {
-		prompt := ratingPrompt.BasePrompt + item.Title
-
-		if item.Content != "" {
-			prompt = prompt + "\n\n" + item.Content
-		}
-
-		ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
-
-		if err != nil {
-			return false, err
-		}
-
-		item.Results[ratingPrompt.GetKey()] = &model.RatingResult{
-			SubjectName: ratingPrompt.SubjectName,
-			InsightName: ratingPrompt.InsightName,
-			Value:       ratingValue,
-		}
-
-		return true, nil
-
+	if item.Content != "" {
+		prompt = prompt + "\n\n" + item.Content
 	}
 
-	return false, nil
+	ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.RatingResult{
+		SubjectName: ratingPrompt.SubjectName,
+		InsightName: ratingPrompt.InsightName,
+		Value:       ratingValue,
+	}, nil
 }

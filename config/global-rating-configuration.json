@@ -1,29 +1,6 @@
 {
   "RssFeedReaders": [
     {
-      "Url": "https://www.theguardian.com/uk/technology/rss",
-      "ShouldCleanHtml": true
-    },
-    {
-      "Url": "https://bitcoinmagazine.com/feed",
-      "ShouldCleanHtml": true
-    },
-    {
-      "Url": "http://rss.cnn.com/rss/money_markets.rss"
-    },
-    {
-      "Url": "http://rss.cnn.com/rss/money_technology.rss"
-    },
-    {
-      "Url": "https://feeds.bloomberg.com/markets/news.rss"
-    },
-    {
-      "Url": "https://feeds.bloomberg.com/technology/news.rss"
-    },
-    {
-      "Url": "https://www.lemonde.fr/en/economy/rss_full.xml"
-    },
-    {
       "Url": "https://www.lemonde.fr/en/money-investments/rss_full.xml"
     }
   ],
