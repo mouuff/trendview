@@ -9,6 +9,7 @@ require (
 	github.com/ollama/ollama v0.5.12
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/text v0.21.0
 	modernc.org/sqlite v1.36.0
 )
 
