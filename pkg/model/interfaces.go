@@ -8,6 +8,7 @@ type ItemStore interface {
 	FindItem(guid string) (*ItemComposite, error)
 	FindItems() (ItemCompositeMap, error)
 	UpdateResults(item *ItemComposite) error
+	GetSubjects() ([]string, error)
 	Close()
 }
 

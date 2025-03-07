@@ -183,6 +183,29 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 	return &item, rows.Err()
 }
 
+func (s *SQLiteItemStore) GetSubjects() ([]string, error) {
+	rows, err := s.db.Query(`
+        SELECT DISTINCT subject_name
+        FROM results
+        ORDER BY subject_name
+    `)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var subjects []string
+	for rows.Next() {
+		var subject string
+		if err := rows.Scan(&subject); err != nil {
+			return nil, err
+		}
+		subjects = append(subjects, subject)
+	}
+
+	return subjects, rows.Err()
+}
+
 // FindItems retrieves all ItemComposites as a map keyed by GUID
 func (s *SQLiteItemStore) FindItems() (model.ItemCompositeMap, error) {
 	items := make(model.ItemCompositeMap)

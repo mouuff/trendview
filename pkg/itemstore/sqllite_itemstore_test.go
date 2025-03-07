@@ -37,6 +37,35 @@ func TestSQLiteItemStore(t *testing.T) {
 		},
 	}
 
+	t.Run("GetSubjects", func(t *testing.T) {
+		store := newStore(t)
+		defer store.Close()
+
+		// Test with empty results table
+		subjects, err := store.GetSubjects()
+		if err != nil {
+			t.Errorf("GetSubjects failed on empty table: %v", err)
+		}
+		if len(subjects) != 0 {
+			t.Errorf("Expected 0 subjects on empty table, got %d", len(subjects))
+		}
+
+		// Add sample data
+		if err := store.SaveItem(sampleItem); err != nil {
+			t.Fatalf("Setup failed: %v", err)
+		}
+
+		// Test with populated data
+		subjects, err = store.GetSubjects()
+		if err != nil {
+			t.Errorf("GetSubjects failed: %v", err)
+		}
+		expectedSubjects := []string{"Microsoft"}
+		if !reflect.DeepEqual(subjects, expectedSubjects) {
+			t.Errorf("Subjects mismatch: got %v, want %v", subjects, expectedSubjects)
+		}
+	})
+
 	t.Run("SaveItem", func(t *testing.T) {
 		store := newStore(t)
 		defer store.Close()

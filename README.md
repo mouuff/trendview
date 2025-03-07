@@ -90,3 +90,12 @@ go clean -testcache; go test ./...
     ]
 }
 ```
+
+
+## Endpoints exposed:
+
+`http://localhost:8080/itemsBySubject?subject=Bitcoin`
+
+`http://localhost:8080/subjects`
+
+`http://localhost:8080/raw`
