@@ -10,7 +10,7 @@ import (
 
 	"github.com/mouuff/TrendView/pkg/itemstore"
 	"github.com/mouuff/TrendView/pkg/model"
-    "github.com/rs/cors"
+	"github.com/rs/cors"
 )
 
 // ItemComposite is a feed item with all the generated results
@@ -58,8 +58,7 @@ func (cmd *Serve) Run() error {
 	}
 	defer storage.Close()
 
-
-    mux := http.NewServeMux()
+	mux := http.NewServeMux()
 
 	//serve static files
 	mux.Handle("/", http.FileServer(http.Dir("./web-ui/dist")))
@@ -146,7 +145,7 @@ func (cmd *Serve) Run() error {
 
 	// Start the server
 	log.Println("Server starting on :8081...")
-    handler := cors.Default().Handler(mux)
+	handler := cors.Default().Handler(mux)
 	if err := http.ListenAndServe(":8081", handler); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
