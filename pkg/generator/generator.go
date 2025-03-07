@@ -80,38 +80,45 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 	}
 
 	for _, item := range items {
+		shouldUpdateResults := false
 
 		if item.Results == nil || tg.ReGenerate {
 			item.Results = make(model.RatingResultMap)
 		}
 
-		log.Printf("Generating rating for item: %s\n", item.Title)
-
 		for _, ratingPrompt := range tg.RatingPrompts {
-			err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
+			updated, err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
 			if err != nil {
 				log.Printf("Error generating rating: %v\n", err)
 				continue
 			}
+
+			shouldUpdateResults = shouldUpdateResults || updated
 		}
 
-		err = tg.Storage.UpdateResults(item)
-		if err != nil {
-			log.Printf("Error saving rating: %v\n", err)
+		if shouldUpdateResults {
+			log.Printf("Generated rating for item: %s\n", item.Title)
+			err = tg.Storage.UpdateResults(item)
+			if err != nil {
+				log.Printf("Error saving rating: %v\n", err)
+			}
 		}
 	}
 }
 
 // ReadFeeds reads feed items from the feeds.
-func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingPrompt model.RatingPrompt, item *model.ItemComposite) error {
+func (tg *TrendGenerator) generateSingleRatingScore(
+	ctx context.Context,
+	ratingPrompt model.RatingPrompt,
+	item *model.ItemComposite) (bool, error) {
 	if ratingPrompt.BasePrompt == "" {
-		return fmt.Errorf("variable BasePrompt is required for rating prompt")
+		return false, fmt.Errorf("variable BasePrompt is required for rating prompt")
 	}
 	if ratingPrompt.SubjectName == "" {
-		return fmt.Errorf("variable SubjectName is required for rating prompt")
+		return false, fmt.Errorf("variable SubjectName is required for rating prompt")
 	}
 	if ratingPrompt.InsightName == "" {
-		return fmt.Errorf("variable InsightName is required for rating prompt")
+		return false, fmt.Errorf("variable InsightName is required for rating prompt")
 	}
 
 	_, resultExists := item.Results[ratingPrompt.GetKey()]
@@ -126,7 +133,7 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 		ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
 
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		item.Results[ratingPrompt.GetKey()] = &model.RatingResult{
@@ -135,7 +142,9 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 			Value:       ratingValue,
 		}
 
+		return true, nil
+
 	}
 
-	return nil
+	return false, nil
 }
