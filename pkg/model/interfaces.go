@@ -2,21 +2,14 @@ package model
 
 import "context"
 
-// ItemStore is the interface for storing and loading items
+// ItemStore is the interface for storing items
 type ItemStore interface {
-	Load() (ItemState, error)
-	Save(items ItemState) error
-	Exists() bool
-}
-
-/* TODO implement a proper database!!!
-type ItemStoreV2 interface {
-	Load() error
-	SaveItem(item ItemComposite) error
-	FindItem(guid string) (ItemComposite, error)
+	SaveItem(item *ItemComposite) error
+	FindItem(guid string) (*ItemComposite, error)
+	FindItems() (map[string]*ItemComposite, error)
+	UpdateResults(item *ItemComposite) error
 	Close()
 }
-*/
 
 type FeedReader interface {
 	GetFeedItems() ([]FeedItem, error)
