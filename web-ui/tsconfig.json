@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "module": "ESNext",
+    "target": "ESNext",
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
+}
