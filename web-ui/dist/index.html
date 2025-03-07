@@ -177,6 +177,22 @@
             return date.toISOString().split('T')[0];
         }
 
+        // Calculate moving average
+        function calculateMovingAverage(dataPoints, windowSize = 7) {
+            const averages = [];
+            for (let i = 0; i < dataPoints.length; i++) {
+                const start = Math.max(0, i - Math.floor(windowSize / 2));
+                const end = Math.min(dataPoints.length, i + Math.ceil(windowSize / 2));
+                const window = dataPoints.slice(start, end);
+                const avg = window.reduce((sum, point) => sum + point.y, 0) / window.length;
+                averages.push({
+                    x: dataPoints[i].x,
+                    y: avg
+                });
+            }
+            return averages;
+        }
+
         // Update chart with current data
         function updateChart() {
             const subject = document.getElementById('subjectSelect').value;
@@ -208,25 +224,41 @@
             }
             if (endDate) {
                 const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999); // Include whole end day
+                end.setHours(23, 59, 59, 999);
                 dataPoints = dataPoints.filter(point => point.x <= end);
             }
 
             // Sort by date
             dataPoints.sort((a, b) => a.x - b.x);
 
+            // Calculate moving average
+            const movingAverage = calculateMovingAverage(dataPoints);
+
             if (chart) chart.destroy();
 
             chart = new Chart(document.getElementById('dataChart'), {
                 type: 'scatter',
                 data: {
-                    datasets: [{
-                        label: `${yAxis} over Time`,
-                        data: dataPoints,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
+                    datasets: [
+                        {
+                            label: `${yAxis} Data Points`,
+                            data: dataPoints,
+                            type: 'scatter',
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: `7-Day Moving Average`,
+                            data: movingAverage,
+                            type: 'line',
+                            fill: false,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            pointRadius: 0
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -260,7 +292,7 @@
                         }
                     },
                     onClick: (event, elements) => {
-                        if (elements.length > 0) {
+                        if (elements.length > 0 && elements[0].datasetIndex === 0) { // Only for scatter points
                             const index = elements[0].index;
                             const point = dataPoints[index];
                             window.open(point.link, '_blank');
@@ -268,18 +300,13 @@
                     },
                     onHover: (event, elements) => {
                         const tooltip = document.getElementById('tooltip');
-                        if (elements.length > 0) {
+                        if (elements.length > 0 && elements[0].datasetIndex === 0) { // Only for scatter points
                             const index = elements[0].index;
                             const point = dataPoints[index];
                             tooltip.style.display = 'block';
                             tooltip.style.left = `${event.x + 10}px`;
                             tooltip.style.top = `${event.y + 10}px`;
-                            tooltip.innerHTML = `
-                                <strong>${point.title}</strong><br>
-                                ${point.content}<br>
-                                ${yAxis}: ${point.y}<br>
-                                Date: ${point.x.toLocaleDateString()}
-                            `;
+                            tooltip.innerHTML = `<strong>${point.title}</strong>`;
                         } else {
                             tooltip.style.display = 'none';
                         }
