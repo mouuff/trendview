@@ -37,13 +37,26 @@ func (tg *TrendGenerator) Execute() error {
 		}
 
 		for _, item := range feedItems {
-			err := tg.ProcessItem(&item)
-			if err != nil {
-				log.Printf("Error processing item: %v\n", err)
-				continue
+
+			if item.GUID == "" {
+				return fmt.Errorf("empty item GUID")
 			}
 
-			log.Printf("Saved item: %s\n", item.Title)
+			foundItem, err := tg.Storage.FindItem(item.GUID)
+			if err != nil {
+				log.Printf("Error reading database: %v\n", err)
+			}
+
+			if err == nil && foundItem == nil {
+				// If item is not found, save it
+				err := tg.ProcessItem(&item)
+				if err != nil {
+					log.Printf("Error processing item: %v\n", err)
+					continue
+				}
+
+				log.Printf("Saved item: %s\n", item.Title)
+			}
 		}
 	}
 	return nil
@@ -71,11 +84,6 @@ func (tg *TrendGenerator) ReGenerate() {
 
 // ReadFeeds reads feed items from the feeds.
 func (tg *TrendGenerator) ProcessItem(item *model.FeedItem) error {
-
-	if item.GUID == "" {
-		return fmt.Errorf("empty item GUID")
-	}
-
 	ratingResultMap, err := tg.generateRatingResultMap(item)
 
 	if err != nil {
