@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mouuff/TrendView/pkg/model"
+	_ "modernc.org/sqlite"
 )
 
 // SQLiteItemStore implements ItemStoreV2 using SQLite
@@ -59,7 +60,6 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	}
 	defer tx.Rollback()
 
-	// Insert or update the feed item
 	_, err = tx.Exec(`
         INSERT OR REPLACE INTO feed_items (guid, title, content, datetime, link, source)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -68,13 +68,11 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 		return err
 	}
 
-	// Delete existing results for this GUID to avoid duplicates
 	_, err = tx.Exec(`DELETE FROM results WHERE article_guid = ?`, item.GUID)
 	if err != nil {
 		return err
 	}
 
-	// Insert new results
 	stmt, err := tx.Prepare(`
         INSERT INTO results (article_guid, subject_name, insight_name, value)
         VALUES (?, ?, ?, ?)
@@ -96,20 +94,26 @@ func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 
 // FindItem retrieves an ItemComposite by GUID
 func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
-	// Fetch the feed item
 	var item model.ItemComposite
+	var datetimeStr string // Temporary string to hold the datetime value
+
 	err := s.db.QueryRow(`
         SELECT title, content, datetime, link, guid, source
         FROM feed_items
         WHERE guid = ?
-    `, guid).Scan(&item.Title, &item.Content, &item.DateTime, &item.Link, &item.GUID, &item.Source)
+    `, guid).Scan(&item.Title, &item.Content, &datetimeStr, &item.Link, &item.GUID, &item.Source)
 	if err == sql.ErrNoRows {
-		return nil, nil // Item not found
+		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
 
-	// Fetch the results
+	// Parse the datetime string into time.Time
+	item.DateTime, err = time.Parse(time.RFC3339, datetimeStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse datetime: %v", err)
+	}
+
 	rows, err := s.db.Query(`
         SELECT subject_name, insight_name, value
         FROM results
@@ -127,7 +131,6 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 		if err != nil {
 			return nil, err
 		}
-		// Use a composite key for Results map (e.g., "Microsoft-Confidence")
 		key := fmt.Sprintf("%s-%s", result.SubjectName, result.InsightName)
 		item.Results[key] = &result
 	}
@@ -139,7 +142,6 @@ func (s *SQLiteItemStore) FindItem(guid string) (*model.ItemComposite, error) {
 func (s *SQLiteItemStore) FindItems() (map[string]*model.ItemComposite, error) {
 	items := make(map[string]*model.ItemComposite)
 
-	// Fetch all feed items
 	rows, err := s.db.Query(`
         SELECT guid, title, content, datetime, link, source
         FROM feed_items
@@ -151,9 +153,15 @@ func (s *SQLiteItemStore) FindItems() (map[string]*model.ItemComposite, error) {
 
 	for rows.Next() {
 		var item model.ItemComposite
-		err := rows.Scan(&item.GUID, &item.Title, &item.Content, &item.DateTime, &item.Link, &item.Source)
+		var datetimeStr string // Temporary string to hold the datetime value
+		err := rows.Scan(&item.GUID, &item.Title, &item.Content, &datetimeStr, &item.Link, &item.Source)
 		if err != nil {
 			return nil, err
+		}
+		// Parse the datetime string into time.Time
+		item.DateTime, err = time.Parse(time.RFC3339, datetimeStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse datetime: %v", err)
 		}
 		item.Results = make(map[string]*model.RatingResult)
 		items[item.GUID] = &item
@@ -162,7 +170,6 @@ func (s *SQLiteItemStore) FindItems() (map[string]*model.ItemComposite, error) {
 		return nil, err
 	}
 
-	// Fetch all results
 	rows, err = s.db.Query(`
         SELECT article_guid, subject_name, insight_name, value
         FROM results
@@ -181,11 +188,7 @@ func (s *SQLiteItemStore) FindItems() (map[string]*model.ItemComposite, error) {
 		}
 		if item, exists := items[guid]; exists {
 			key := fmt.Sprintf("%s-%s", subjectName, insightName)
-			item.Results[key] = &model.RatingResult{
-				SubjectName: subjectName,
-				InsightName: insightName,
-				Value:       value,
-			}
+			item.Results[key] = &model.RatingResult{SubjectName: subjectName, InsightName: insightName, Value: value}
 		}
 	}
 

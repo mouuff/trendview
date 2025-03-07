@@ -9,15 +9,12 @@ type ItemStore interface {
 	Exists() bool
 }
 
-/* TODO implement a proper database!!!
-
 type ItemStoreV2 interface {
 	SaveItem(item *ItemComposite) error
 	FindItem(guid string) (*ItemComposite, error)
 	FindItems() (map[string]*ItemComposite, error)
 	Close()
 }
-*/
 
 type FeedReader interface {
 	GetFeedItems() ([]FeedItem, error)
