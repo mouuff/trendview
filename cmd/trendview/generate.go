@@ -78,6 +78,7 @@ func (cmd *GenerateTrend) Run() error {
 	if err != nil {
 		return err
 	}
+	defer storage.Close()
 
 	tg := &generator.TrendGenerator{
 		Context:       context.Background(),
