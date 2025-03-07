@@ -23,6 +23,26 @@ interface Props {
   data: IStockData[];
 }
 
+const inputFrom = () =>
+  document.getElementById("date-from") as HTMLInputElement;
+const inputTo = () => document.getElementById("date-to") as HTMLInputElement;
+
+const updateTime = (
+  nbDaysAgo: number,
+  onDateChange: (input: "from" | "to", date: Date) => void
+) => {
+  const today = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - nbDaysAgo);
+
+  onDateChange("from", startDate);
+  onDateChange("to", today);
+  setTimeout(() => {
+    inputFrom().value = startDate.toDateString();
+    inputTo().value = today.toDateString();
+  }, 1);
+};
+
 export function Filters({ data, onFilterChange }: Props) {
   const [filters, setFilters] = React.useState<IFilters>({
     stock: [],
@@ -144,16 +164,40 @@ export function Filters({ data, onFilterChange }: Props) {
       </Menu>
       <Field>
         <DatePicker
+          id="date-from"
           placeholder="Start date..."
           onSelectDate={(date) => onDateChange("from", date)}
         />
       </Field>
       <Field>
         <DatePicker
+          id="date-to"
           placeholder="End date..."
           onSelectDate={(date) => onDateChange("to", date)}
         />
       </Field>
+      <Button
+        onClick={() => {
+          updateTime(1, onDateChange);
+        }}
+      >
+        Last 24h
+      </Button>
+
+      <Button
+        onClick={() => {
+          updateTime(7, onDateChange);
+        }}
+      >
+        Last 7 days
+      </Button>
+      <Button
+        onClick={() => {
+          updateTime(30, onDateChange);
+        }}
+      >
+        Last 30 days
+      </Button>
     </div>
   );
 }
