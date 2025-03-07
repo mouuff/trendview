@@ -61,6 +61,8 @@ func (cmd *Serve) Run() error {
 
     mux := http.NewServeMux()
 
+	//serve static files
+	mux.Handle("/", http.FileServer(http.Dir("./dist")))
 	mux.HandleFunc("/subjects", func(w http.ResponseWriter, r *http.Request) {
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
