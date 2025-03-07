@@ -61,7 +61,7 @@ func (cmd *ConvertToCsv) Run() error {
 
 	}
 
-	fmt.Printf("\tTitle\tLink\n")
+	fmt.Printf("\tTitle\tSource\tLink\n")
 
 	for _, item := range data {
 		formatedDate := item.DateTime.Format("2006-01-02 15:04:05")
@@ -79,7 +79,7 @@ func (cmd *ConvertToCsv) Run() error {
 
 		}
 
-		fmt.Printf("\t%s\t%s\n", formatedTitle, item.Link)
+		fmt.Printf("\t%s\t%s\t%s\n", formatedTitle, item.Source, item.Link)
 	}
 
 	return nil

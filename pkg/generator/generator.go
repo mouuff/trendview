@@ -42,7 +42,7 @@ func (tg *TrendGenerator) readFeeds() {
 	for _, feed := range tg.Feeds {
 		feedItems, err := feed.GetFeedItems()
 		if err != nil {
-			log.Printf("Error reading feed: %v\n", err)
+			log.Printf("Error reading feed %s: %v\n", feed.GetSource(), err)
 			continue
 		}
 
@@ -107,9 +107,6 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 	if ratingPrompt.BasePrompt == "" {
 		return fmt.Errorf("variable BasePrompt is required for rating prompt")
 	}
-	if ratingPrompt.Identifier == "" {
-		return fmt.Errorf("variable Identifier is required for rating prompt")
-	}
 	if ratingPrompt.SubjectName == "" {
 		return fmt.Errorf("variable SubjectName is required for rating prompt")
 	}
@@ -117,16 +114,22 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 		return fmt.Errorf("variable InsightName is required for rating prompt")
 	}
 
-	_, resultExists := item.Results[ratingPrompt.Identifier]
+	_, resultExists := item.Results[ratingPrompt.GetKey()]
 
 	if !resultExists || tg.ReGenerate {
-		ratingValue, err := tg.Brain.GenerateRating(ctx, ratingPrompt.BasePrompt+item.Content)
+		prompt := ratingPrompt.BasePrompt + item.Title
+
+		if item.Content != "" {
+			prompt = prompt + "\n\n" + item.Content
+		}
+
+		ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
 
 		if err != nil {
 			return err
 		}
 
-		item.Results[ratingPrompt.Identifier] = &model.RatingResult{
+		item.Results[ratingPrompt.GetKey()] = &model.RatingResult{
 			SubjectName: ratingPrompt.SubjectName,
 			InsightName: ratingPrompt.InsightName,
 			Value:       ratingValue,

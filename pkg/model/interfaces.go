@@ -14,6 +14,7 @@ type ItemStore interface {
 
 type FeedReader interface {
 	GetFeedItems() ([]FeedItem, error)
+	GetSource() string
 }
 
 type Brain interface {

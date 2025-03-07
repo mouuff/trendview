@@ -30,7 +30,6 @@ type ItemComposite struct {
 }
 
 type RatingPrompt struct {
-	Identifier  string
 	SubjectName string
 	InsightName string
 	BasePrompt  string

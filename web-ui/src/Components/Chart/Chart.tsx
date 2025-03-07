@@ -48,7 +48,7 @@ export function Chart({
       }}
       series={data.map((d) => ({
         label: d.title,
-        color: stringTocolorHash(d.source),
+        color: stringTocolorHash(d.stockName),
         id: d.guid,
         data: [
           {
