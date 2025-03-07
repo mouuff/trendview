@@ -72,7 +72,7 @@ func TestSQLiteItemStore(t *testing.T) {
 		if found == nil {
 			t.Fatal("Item not found")
 		}
-		if found.Title != sampleItem.Title || len(found.Results) != len(sampleItem.Results) {
+		if !reflect.DeepEqual(found, sampleItem) {
 			t.Errorf("Found item mismatch: got %v, want %v", found, sampleItem)
 		}
 
