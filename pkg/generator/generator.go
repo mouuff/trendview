@@ -120,7 +120,13 @@ func (tg *TrendGenerator) generateSingleRatingScore(ctx context.Context, ratingP
 	_, resultExists := item.Results[ratingPrompt.Identifier]
 
 	if !resultExists || tg.ReGenerate {
-		ratingValue, err := tg.Brain.GenerateRating(ctx, ratingPrompt.BasePrompt+item.Content)
+		prompt := ratingPrompt.BasePrompt + item.Title
+
+		if item.Content != "" {
+			prompt = prompt + "\n\n" + item.Content
+		}
+
+		ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
 
 		if err != nil {
 			return err

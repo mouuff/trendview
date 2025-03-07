@@ -9,6 +9,9 @@
       "ShouldCleanHtml": true
     },
     {
+      "Url": "http://rss.cnn.com/rss/edition.rss"
+    },
+    {
       "Url": "https://feeds.bloomberg.com/markets/news.rss"
     },
     {
