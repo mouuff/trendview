@@ -3,6 +3,7 @@ package feed
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/mouuff/TrendView/pkg/model"
+	"golang.org/x/text/encoding/charmap"
 )
 
 // RSS structs for XML parsing
@@ -74,6 +76,10 @@ func parsePubDate(pubDate string) (*time.Time, error) {
 	return nil, fmt.Errorf("failed to parse date '%s'", pubDate)
 }
 
+func (p *RssFeedReader) GetSource() string {
+	return p.Url
+}
+
 func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 	resp, err := http.Get(p.Url)
 	if err != nil {
@@ -87,6 +93,17 @@ func (p *RssFeedReader) GetFeedItems() ([]model.FeedItem, error) {
 
 	var rss Rss
 	decoder := xml.NewDecoder(resp.Body)
+	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		switch strings.ToLower(charset) {
+		case "iso-8859-1":
+			return charmap.ISO8859_1.NewDecoder().Reader(input), nil
+		case "utf-8":
+			return input, nil // UTF-8 is handled by default
+		default:
+			return nil, fmt.Errorf("unsupported charset: %s", charset)
+		}
+	}
+
 	err = decoder.Decode(&rss)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse RSS feed: %v", err)
