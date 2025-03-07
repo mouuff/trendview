@@ -52,34 +52,6 @@ func (s *SQLiteItemStore) createTables() error {
 	return err
 }
 
-// AddRating adds a single rating for an article by GUID
-func (s *SQLiteItemStore) AddRating(articleGuid string, ratingResult *model.RatingResult) error {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	var exists bool
-	err = tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM feed_items WHERE guid = ?)`, articleGuid).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("no article found with GUID: %s", articleGuid)
-	}
-
-	_, err = tx.Exec(`
-		INSERT INTO results (article_guid, subject_name, insight_name, value)
-		VALUES (?, ?, ?, ?)
-	`, articleGuid, ratingResult.SubjectName, ratingResult.InsightName, ratingResult.Value)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
 // SaveItem saves or updates an ItemComposite in the database
 func (s *SQLiteItemStore) SaveItem(item *model.ItemComposite) error {
 	tx, err := s.db.Begin()
@@ -275,12 +247,6 @@ func (s *SQLiteItemStore) GetItemsWithoutRating(subject, insight string) ([]stri
 	}
 
 	return guids, rows.Err()
-}
-
-// RemoveAllRatings deletes all entries from the results table
-func (s *SQLiteItemStore) RemoveAllRatings() error {
-	_, err := s.db.Exec(`DELETE FROM results`)
-	return err
 }
 
 // Helper function to count rows in results table
