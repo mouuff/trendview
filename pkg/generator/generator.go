@@ -85,6 +85,8 @@ func (tg *TrendGenerator) generateRatingScores(ctx context.Context) {
 			item.Results = make(map[string]*model.RatingResult)
 		}
 
+		log.Printf("Generating rating for item: %s\n", item.Title)
+
 		for _, ratingPrompt := range tg.RatingPrompts {
 			err := tg.generateSingleRatingScore(ctx, ratingPrompt, item)
 			if err != nil {
