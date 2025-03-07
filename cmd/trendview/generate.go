@@ -86,13 +86,17 @@ func (cmd *GenerateTrend) Run() error {
 		Storage:       storage,
 		Feeds:         internal.ConvertToFeedReaders(config.RssFeedReaders),
 		RatingPrompts: config.RatingPrompts,
-		ReGenerate:    cmd.regen,
+	}
+
+	if cmd.regen {
+		log.Println("Re-Generating...")
+		tg.ReGenerate()
 	}
 
 	if cmd.loop {
 		for {
 			tg.Execute()
-			time.Sleep(5 * time.Minute)
+			time.Sleep(7 * time.Minute)
 		}
 	}
 
