@@ -73,7 +73,7 @@ go clean -testcache; go test ./...
 ## Example configuration
 ```json
 {
-  "Model": "mistral",
+  "Model": "llama3.2",
   "RssFeedReaders": [
     {
       "Url": "https://www.theguardian.com/uk/technology/rss",
