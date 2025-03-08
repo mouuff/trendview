@@ -91,6 +91,26 @@
         .news-table a:hover {
             text-decoration: underline;
         }
+
+        .legend {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -123,6 +143,7 @@
             <canvas id="dataChart"></canvas>
             <div id="tooltip" class="tooltip"></div>
         </div>
+        <div class="legend" id="sourceLegend"></div>
         <table class="news-table" id="newsTable">
             <thead>
                 <tr>
@@ -288,6 +309,23 @@
             });
         }
 
+        // Update legend with current sources
+        function updateLegend(dataPoints) {
+            const legend = document.getElementById('sourceLegend');
+            const uniqueSources = [...new Set(dataPoints.map(point => point.source))];
+            
+            legend.innerHTML = '';
+            uniqueSources.forEach(source => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <span class="legend-color" style="background-color: ${getSourceColor(source)}"></span>
+                    <span>${source}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
         // Update chart with current data
         function updateChart() {
             const subject = document.getElementById('subjectSelect').value;
@@ -417,8 +455,9 @@
                 }
             });
 
-            // Update table
+            // Update table and legend
             updateTable(dataPoints, yAxis);
+            updateLegend(dataPoints);
         }
 
         // Load initial data
