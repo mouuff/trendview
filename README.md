@@ -13,6 +13,12 @@ This project is currently in the prototype stage. It was built over a few days b
 
 You can easily set up and run this project entirely locally.
 
+## Example Results
+
+Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating greater confidence.
+
+![Example Result](images/example_result_1.png)
+
 ## Prerequisites
 
 Before using TrendView, ensure you have the following installed:
@@ -25,12 +31,6 @@ To run Ollama in server mode, use the following command:
 ```sh
 ollama serve
 ```
-
-## Example Results
-
-Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating greater confidence.
-
-![Example Result](images/example_result_1.png)
 
 ## Example Commands
 
