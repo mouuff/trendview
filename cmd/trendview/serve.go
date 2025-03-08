@@ -64,6 +64,8 @@ func (cmd *Serve) Run() error {
 	mux.Handle("/", http.FileServer(http.Dir("./web-ui/dist")))
 
 	mux.HandleFunc("/subjects", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving /subjects")
+
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -88,6 +90,8 @@ func (cmd *Serve) Run() error {
 	})
 
 	mux.HandleFunc("/itemsBySubject", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving /itemsBySubject")
+
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -121,6 +125,8 @@ func (cmd *Serve) Run() error {
 	})
 
 	mux.HandleFunc("/raw", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving /raw")
+
 		// Only allow GET requests
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
