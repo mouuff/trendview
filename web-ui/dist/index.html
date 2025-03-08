@@ -54,6 +54,8 @@
             pointer-events: none;
             display: none;
             max-width: 300px;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         h1 {
@@ -494,7 +496,11 @@
                             tooltip.style.display = 'block';
                             tooltip.style.left = `${event.x + 10}px`;
                             tooltip.style.top = `${event.y + 10}px`;
-                            tooltip.innerHTML = `<strong>${point.title}</strong>`;
+                            tooltip.innerHTML = `
+                                <strong>${point.title}</strong><br>
+                                Date: ${point.x.toLocaleDateString()}<br>
+                                Source: ${point.source}
+                            `;
                         } else {
                             tooltip.style.display = 'none';
                         }
