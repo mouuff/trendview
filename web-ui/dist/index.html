@@ -111,6 +111,48 @@
             border-radius: 50%;
             display: inline-block;
         }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1;
+            padding: 10px;
+        }
+
+        .dropdown-content label {
+            display: block;
+            margin: 5px 0;
+        }
+
+        .dropdown-content input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .dropdown-container:hover .dropdown-content,
+        .dropdown-content:hover {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -135,9 +177,10 @@
                 <option value="week">Past Week</option>
                 <option value="month">Past Month</option>
             </select>
-            <select id="sourceFilter">
-                <option value="all">All Sources</option>
-            </select>
+            <div class="dropdown-container">
+                <button class="dropdown-button">Select Sources</button>
+                <div class="dropdown-content" id="sourceFilter"></div>
+            </div>
         </div>
         <div class="chart-container">
             <canvas id="dataChart"></canvas>
@@ -178,7 +221,7 @@
             await loadInitialData();
         }
 
-        // Load subjects from endpoint and populate source filter
+        // Load subjects from endpoint
         async function loadSubjects() {
             try {
                 const response = await fetch('/subjects');
@@ -205,14 +248,15 @@
                 // Update source filter
                 const sourceFilter = document.getElementById('sourceFilter');
                 const existingSources = new Set(
-                    Array.from(sourceFilter.options).map(opt => opt.value).filter(val => val !== 'all')
+                    Array.from(sourceFilter.getElementsByTagName('input')).map(input => input.value)
                 );
                 Object.values(data.Items).forEach(item => {
                     if (!existingSources.has(item.Source)) {
-                        const option = document.createElement('option');
-                        option.value = item.Source;
-                        option.textContent = item.Source;
-                        sourceFilter.appendChild(option);
+                        const label = document.createElement('label');
+                        label.innerHTML = `
+                            <input type="checkbox" value="${item.Source}" checked> ${item.Source}
+                        `;
+                        sourceFilter.appendChild(label);
                         existingSources.add(item.Source);
                     }
                 });
@@ -334,7 +378,10 @@
             const filterType = document.getElementById('filterType').value;
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            const sourceFilter = document.getElementById('sourceFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter');
+            const selectedSources = Array.from(sourceFilter.getElementsByTagName('input'))
+                .filter(input => input.checked)
+                .map(input => input.value);
 
             const items = allData[subject] || {};
             let dataPoints = Object.entries(items).map(([link, item]) => ({
@@ -365,8 +412,8 @@
             }
 
             // Apply source filter
-            if (sourceFilter !== 'all') {
-                dataPoints = dataPoints.filter(point => point.source === sourceFilter);
+            if (selectedSources.length > 0) {
+                dataPoints = dataPoints.filter(point => selectedSources.includes(point.source));
             }
 
             // Sort by date for chart
