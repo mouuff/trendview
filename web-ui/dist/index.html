@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Data Visualization</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
@@ -10,7 +11,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: #f5f5f5;
         }
 
@@ -18,62 +19,68 @@
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
+            padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .controls {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        select, input {
+        select, input, .dropdown-button {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .chart-container {
             position: relative;
-            height: 600px;
+            height: 50vh; /* Use viewport height for better scaling */
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px;
+            padding: 8px;
             border-radius: 4px;
             pointer-events: none;
             display: none;
-            max-width: 300px;
+            max-width: 90vw; /* Limit width on small screens */
             font-size: 12px;
             line-height: 1.4;
+            z-index: 10;
         }
 
         h1 {
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-align: center;
         }
 
         .news-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 12px;
         }
 
         .news-table th,
         .news-table td {
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: left;
+            word-wrap: break-word;
         }
 
         .news-table th {
@@ -95,65 +102,117 @@
         }
 
         .legend {
-            margin: 20px 0;
+            margin: 15px 0;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
+            justify-content: center;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 5px;
+            font-size: 12px;
         }
 
         .legend-color {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: inline-block;
         }
 
         .dropdown-container {
             position: relative;
-            display: inline-block;
+            width: 100%;
         }
 
         .dropdown-button {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
             background-color: white;
             cursor: pointer;
-            font-size: 14px;
+            text-align: left;
         }
 
         .dropdown-content {
             display: none;
             position: absolute;
             background-color: white;
-            min-width: 200px;
-            max-height: 300px;
+            width: 100%;
+            max-height: 200px;
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 1;
-            padding: 10px;
+            padding: 8px;
         }
 
         .dropdown-content label {
             display: block;
             margin: 5px 0;
+            font-size: 14px;
         }
 
         .dropdown-content input[type="checkbox"] {
             margin-right: 5px;
         }
 
-        .dropdown-container:hover .dropdown-content,
-        .dropdown-content:hover {
+        /* Show dropdown on click for mobile */
+        .dropdown-container.active .dropdown-content {
             display: block;
+        }
+
+        /* Media query for larger screens */
+        @media (min-width: 768px) {
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            select, input, .dropdown-button {
+                width: auto;
+            }
+
+            .dropdown-container {
+                width: auto;
+            }
+
+            .dropdown-container:hover .dropdown-content,
+            .dropdown-content:hover {
+                display: block;
+            }
+
+            .dropdown-container.active .dropdown-content {
+                display: none;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .chart-container {
+                height: 600px;
+            }
+
+            .news-table {
+                font-size: 14px;
+            }
+
+            .legend-item {
+                font-size: 14px;
+            }
+
+            .legend-color {
+                width: 15px;
+                height: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -247,7 +306,6 @@
                 const data = await response.json();
                 allData[subject] = data.Items;
 
-                // Update source filter
                 const sourceFilter = document.getElementById('sourceFilter');
                 const existingSources = new Set(
                     Array.from(sourceFilter.getElementsByTagName('input')).map(input => input.value)
@@ -271,9 +329,7 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            document.getElementById('subjectSelect').addEventListener('change', (e) => {
-                loadData(e.target.value);
-            });
+            document.getElementById('subjectSelect').addEventListener('change', (e) => loadData(e.target.value));
             document.getElementById('yAxisSelect').addEventListener('change', updateChart);
             document.getElementById('filterValue').addEventListener('input', updateChart);
             document.getElementById('filterType').addEventListener('change', updateChart);
@@ -282,6 +338,12 @@
             document.getElementById('datePreset').addEventListener('change', (e) => {
                 applyDatePreset(e.target.value);
                 updateChart();
+            });
+
+            const dropdownContainer = document.querySelector('.dropdown-container');
+            const dropdownButton = document.querySelector('.dropdown-button');
+            dropdownButton.addEventListener('click', () => {
+                dropdownContainer.classList.toggle('active');
             });
             document.getElementById('sourceFilter').addEventListener('change', updateChart);
         }
@@ -339,9 +401,7 @@
             const valueHeader = document.getElementById('valueHeader');
             valueHeader.textContent = yAxis;
             
-            // Sort by Y-axis value descending
             dataPoints.sort((a, b) => b.y - a.y);
-
             tbody.innerHTML = '';
             dataPoints.forEach(point => {
                 const tr = document.createElement('tr');
@@ -397,12 +457,10 @@
                 backgroundColor: getSourceColor(item.Source)
             }));
 
-            // Apply numeric filter
             if (filterValue) {
                 dataPoints = dataPoints.filter(point => point.filterValue >= parseInt(filterValue));
             }
 
-            // Apply date filter
             if (startDate) {
                 const start = new Date(startDate);
                 dataPoints = dataPoints.filter(point => point.x >= start);
@@ -413,15 +471,11 @@
                 dataPoints = dataPoints.filter(point => point.x <= end);
             }
 
-            // Apply source filter
             if (selectedSources.length > 0) {
                 dataPoints = dataPoints.filter(point => selectedSources.includes(point.source));
             }
 
-            // Sort by date for chart
             const chartPoints = [...dataPoints].sort((a, b) => a.x - b.x);
-
-            // Calculate moving average
             const movingAverage = calculateMovingAverage(chartPoints);
 
             if (chart) chart.destroy();
@@ -436,7 +490,8 @@
                             type: 'scatter',
                             backgroundColor: chartPoints.map(point => point.backgroundColor),
                             borderColor: chartPoints.map(point => point.backgroundColor),
-                            borderWidth: 1
+                            borderWidth: 1,
+                            pointRadius: 4 // Slightly larger points for touch
                         },
                         {
                             label: `7-Day Moving Average`,
@@ -459,18 +514,21 @@
                             time: {
                                 unit: 'day',
                                 displayFormats: {
-                                    day: 'MMM d, yyyy'
+                                    day: 'MMM d'
                                 }
                             },
                             title: {
                                 display: true,
-                                text: 'Date'
-                            }
+                                text: 'Date',
+                                font: { size: 12 }
+                            },
+                            ticks: { maxRotation: 45, minRotation: 45 }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: yAxis
+                                text: yAxis,
+                                font: { size: 12 }
                             },
                             beginAtZero: true,
                             max: 100
@@ -479,6 +537,9 @@
                     plugins: {
                         tooltip: {
                             enabled: false
+                        },
+                        legend: {
+                            display: false // Hide Chart.js legend on mobile
                         }
                     },
                     onClick: (event, elements) => {
@@ -494,8 +555,8 @@
                             const index = elements[0].index;
                             const point = chartPoints[index];
                             tooltip.style.display = 'block';
-                            tooltip.style.left = `${event.x + 10}px`;
-                            tooltip.style.top = `${event.y + 10}px`;
+                            tooltip.style.left = `${Math.min(event.x + 10, window.innerWidth - tooltip.offsetWidth - 10)}px`;
+                            tooltip.style.top = `${Math.min(event.y + 10, window.innerHeight - tooltip.offsetHeight - 10)}px`;
                             tooltip.innerHTML = `
                                 <strong>${point.title}</strong><br>
                                 Date: ${point.x.toLocaleDateString()}<br>
@@ -508,7 +569,6 @@
                 }
             });
 
-            // Update table and legend
             updateTable(dataPoints, yAxis);
             updateLegend(dataPoints);
         }
