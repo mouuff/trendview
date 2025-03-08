@@ -141,7 +141,8 @@ func (tg *TrendGenerator) generateSingleRatingScore(
 		prompt = prompt + "\n\n" + item.Content
 	}
 
-	ratingValue, err := tg.Brain.GenerateRating(ctx, prompt)
+	propertyName := ratingPrompt.SubjectName + ratingPrompt.InsightName + "Rating"
+	ratingValue, err := tg.Brain.GenerateRating(ctx, propertyName, prompt)
 
 	if err != nil {
 		return nil, err

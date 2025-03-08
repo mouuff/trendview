@@ -8,10 +8,6 @@ import (
 	"github.com/ollama/ollama/api"
 )
 
-type ollamaRatingResult struct {
-	Rating int `json:"rating"`
-}
-
 type Schema struct {
 	Type       string              `json:"type"`
 	Properties map[string]Property `json:"properties"`
@@ -40,18 +36,18 @@ func NewOllamaBrain() (*OllamaBrain, error) {
 	}, nil
 }
 
-func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (int, error) {
+func (c *OllamaBrain) GenerateRating(ctx context.Context, propertyName, prompt string) (int, error) {
 	formatSchema := Schema{
 		Type: "object",
 		Properties: map[string]Property{
-			"rating": {
+			propertyName: {
 				Type: "integer",
 			},
 		},
-		Required: []string{"rating"},
+		Required: []string{propertyName},
 	}
 
-	var result ollamaRatingResult
+	var result map[string]int
 
 	respFunc := func(resp api.GenerateResponse) error {
 		err := json.Unmarshal([]byte(resp.Response), &result)
@@ -67,7 +63,7 @@ func (c *OllamaBrain) GenerateRating(ctx context.Context, prompt string) (int, e
 		return 0, fmt.Errorf("failed to generate rating: %v", err)
 	}
 
-	return result.Rating, nil
+	return result[propertyName], nil
 }
 
 func (c *OllamaBrain) generate(ctx context.Context, prompt string, formatSchema Schema, fn api.GenerateResponseFunc) error {
