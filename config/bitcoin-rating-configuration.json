@@ -1,4 +1,5 @@
 {
+    "Model": "mistral",
     "RssFeedReaders": [
         {
             "Url": "https://news.google.com/rss/search?q=BTC+Bitcoin+news+when:1h\u0026hl=en-US\u0026gl=US\u0026ceid=US:en",

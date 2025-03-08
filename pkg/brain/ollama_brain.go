@@ -23,7 +23,7 @@ type OllamaBrain struct {
 	Client *api.Client
 }
 
-func NewOllamaBrain() (*OllamaBrain, error) {
+func NewOllamaBrain(model string) (*OllamaBrain, error) {
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
@@ -31,7 +31,7 @@ func NewOllamaBrain() (*OllamaBrain, error) {
 	}
 
 	return &OllamaBrain{
-		Model:  "mistral",
+		Model:  model,
 		Client: client,
 	}, nil
 }

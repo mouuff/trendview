@@ -10,7 +10,7 @@ import (
 
 func TestOllamaBrainGenerateRating(t *testing.T) {
 	ctx := context.Background()
-	gen, err := brain.NewOllamaBrain()
+	gen, err := brain.NewOllamaBrain("mistral")
 
 	if err != nil {
 		t.Fatal(err)

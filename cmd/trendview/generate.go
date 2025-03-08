@@ -18,6 +18,7 @@ import (
 )
 
 type TrendGeneratorConfig struct {
+	Model          string
 	RssFeedReaders []feed.RssFeedReader
 	RatingPrompts  []model.RatingPrompt
 }
@@ -69,7 +70,7 @@ func (cmd *GenerateTrend) Run() error {
 		return err
 	}
 
-	brain, err := brain.NewOllamaBrain()
+	brain, err := brain.NewOllamaBrain(config.Model)
 	if err != nil {
 		return err
 	}
@@ -105,6 +106,7 @@ func (cmd *GenerateTrend) Run() error {
 
 func printConfigurationTemplate() {
 	configTemplate := &TrendGeneratorConfig{
+		Model: "mistral",
 		RssFeedReaders: []feed.RssFeedReader{
 			{
 				Url:             "https://news.google.com/rss/search?q=BTC+Bitcoin+news+when:1h&hl=en-US&gl=US&ceid=US:en",

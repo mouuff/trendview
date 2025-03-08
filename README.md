@@ -73,36 +73,57 @@ go clean -testcache; go test ./...
 ## Example configuration
 ```json
 {
-    "RssFeedReaders": [
-        {
-            "Url": "https://www.theguardian.com/uk/technology/rss",
-            "ShouldCleanHtml": true
-        },
-        {
-            "Url": "https://feeds.bloomberg.com/markets/news.rss"
-        },
-        {
-            "Url": "https://feeds.bloomberg.com/technology/news.rss"
-        },
-        {
-            "Url": "https://www.lemonde.fr/en/economy/rss_full.xml"
-        },
-        {
-            "Url": "https://www.lemonde.fr/en/money-investments/rss_full.xml"
-        }
-    ],
-    "RatingPrompts": [
-      {
-        "SubjectName": "Microsoft",
-        "InsightName": "Confidence",
-        "BasePrompt": "Based solely on the news below, rate your confidence in investing in Microsoft stocks from 0 (no confidence, unwise) to 50 (neutral) to 100 (very confident, good opportunity), considering market trends, regulations, or economic factors. News: "
-      },
-      {
-        "SubjectName": "Microsoft",
-        "InsightName": "Relevance",
-        "BasePrompt": "Based exclusively on the news provided below, evaluate the potential connection to Microsoft's stock price. Assign a rating on a scale from 0 to 100, where:  - 0 = completely unrelated - 50 = somewhat related - 100 = very much related If there is any uncertainty or insufficient information to determine relevance, default to a rating of 0. News: "
-      }
-    ]
+  "Model": "mistral",
+  "RssFeedReaders": [
+    {
+      "Url": "https://www.theguardian.com/uk/technology/rss",
+      "ShouldCleanHtml": true
+    },
+    {
+      "Url": "https://bitcoinmagazine.com/feed",
+      "ShouldCleanHtml": true
+    },
+    {
+      "Url": "https://www.cnbc.com/id/19854910/device/rss/rss.html"
+    },
+    {
+      "Url": "http://rss.cnn.com/rss/money_markets.rss"
+    },
+    {
+      "Url": "http://rss.cnn.com/rss/money_technology.rss"
+    },
+    {
+      "Url": "https://feeds.bloomberg.com/markets/news.rss"
+    },
+    {
+      "Url": "https://feeds.bloomberg.com/technology/news.rss"
+    },
+    {
+      "Url": "https://www.lemonde.fr/en/economy/rss_full.xml"
+    }
+  ],
+  "RatingPrompts": [
+    {
+      "SubjectName": "Microsoft",
+      "InsightName": "Confidence",
+      "BasePrompt": "Based solely on the news provided below, give a rating on how it might affect Microsoft's stock price on a scale from 0 to 100, where: 0 indicates a very negative confidence (likely price drop), 50 indicates a neutral confidence (no significant change), and 100 indicates a positive confidence (likely price increase). For the rating, consider market trends, regulations, economic factors, and any other relevant information. News: "
+    },
+    {
+      "SubjectName": "Microsoft",
+      "InsightName": "Relevance",
+      "BasePrompt": "Based solely on the news provided below, give a rating on how related it is to Microsoft on a scale from 0 to 100, where: 0 indicates no relevance (completely unrelated), 50 indicates moderate relevance (somewhat related), and 100 indicates high relevance (directly related). News:"
+    },
+    {
+      "SubjectName": "Bitcoin",
+      "InsightName": "Confidence",
+      "BasePrompt": "Based solely on the news provided below, give a rating on how it might affect Bitcoin's price on a scale from 0 to 100, where: 0 indicates a very negative confidence (likely price drop), 50 indicates a neutral confidence (no significant change), and 100 indicates a positive confidence (likely price increase). For the rating, consider market trends, regulations, economic factors, and any other relevant information. News: "
+    },
+    {
+      "SubjectName": "Bitcoin",
+      "InsightName": "Relevance",
+      "BasePrompt": "Based solely on the news provided below, give a rating on how related it is to Bitcoin on a scale from 0 to 100, where: 0 indicates no relevance (completely unrelated), 50 indicates moderate relevance (somewhat related), and 100 indicates high relevance (directly related). For the rating, consider the content of the news, its potential impact on Bitcoin, market perception, and any other relevant factors. News: "
+    }
+  ]
 }
 ```
 
