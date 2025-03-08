@@ -96,7 +96,7 @@ func (cmd *GenerateTrend) Run() error {
 	if cmd.loop {
 		for {
 			tg.Execute()
-			time.Sleep(7 * time.Minute)
+			time.Sleep(30 * time.Minute)
 		}
 	}
 
