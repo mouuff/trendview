@@ -54,6 +54,8 @@
             pointer-events: none;
             display: none;
             max-width: 300px;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         h1 {
@@ -161,8 +163,8 @@
         <div class="controls">
             <select id="subjectSelect"></select>
             <select id="yAxisSelect">
-                <option value="Confidence">Confidence</option>
-                <option value="Relevance" selected>Relevance</option>
+                <option value="Confidence" selected>Confidence</option>
+                <option value="Relevance">Relevance</option>
             </select>
             <input type="number" id="filterValue" placeholder="Filter value" min="0" max="100" value="40">
             <select id="filterType">
@@ -494,7 +496,11 @@
                             tooltip.style.display = 'block';
                             tooltip.style.left = `${event.x + 10}px`;
                             tooltip.style.top = `${event.y + 10}px`;
-                            tooltip.innerHTML = `<strong>${point.title}</strong>`;
+                            tooltip.innerHTML = `
+                                <strong>${point.title}</strong><br>
+                                Date: ${point.x.toLocaleDateString()}<br>
+                                Source: ${point.source}
+                            `;
                         } else {
                             tooltip.style.display = 'none';
                         }
