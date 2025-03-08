@@ -1,10 +1,15 @@
 # TrendView
+TrendView is an AI-powered tool designed to analyze and visualize trends effectively.
 
-TrendView is a tool that leverages AI to analyze and visualize trends.
+### Features:
+- **Configurable Automation**: Retrieve RSS content and obtain ratings from your preferred AI.
+- **Database Integration**: Store and manage results efficiently.
+- **CSV Export**: Easily export data to CSV format.
+- **Real-time Visualization**: Use the built-in web server to visualize results in real-time.
 
 ## Project Status
 
-This project is currently in the prototype stage. It was built rapidly over a few days but is designed to be modular and extendable, allowing for future enhancements and integrations.
+This project is currently in the prototype stage. It was built over a few days but is designed to be modular and extendable, allowing for future enhancements and integrations.
 
 You can easily set up and run this project entirely locally.
 
