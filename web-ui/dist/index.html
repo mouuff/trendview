@@ -42,7 +42,7 @@
 
         .chart-container {
             position: relative;
-            height: 50vh; /* Use viewport height for better scaling */
+            height: 50vh;
             width: 100%;
             margin-bottom: 15px;
         }
@@ -55,7 +55,7 @@
             border-radius: 4px;
             pointer-events: none;
             display: none;
-            max-width: 90vw; /* Limit width on small screens */
+            max-width: 90vw;
             font-size: 12px;
             line-height: 1.4;
             z-index: 10;
@@ -158,12 +158,10 @@
             margin-right: 5px;
         }
 
-        /* Show dropdown on click for mobile */
         .dropdown-container.active .dropdown-content {
             display: block;
         }
 
-        /* Media query for larger screens */
         @media (min-width: 768px) {
             .controls {
                 flex-direction: row;
@@ -234,7 +232,7 @@
             <input type="date" id="endDate" placeholder="End Date">
             <select id="datePreset">
                 <option value="all">All Time</option>
-                <option value="24h">Past 24 Hours</option>
+                <option value="24h" selected>Past 24 Hours</option>
                 <option value="week">Past Week</option>
                 <option value="month">Past Month</option>
             </select>
@@ -266,23 +264,21 @@
         let allData = {};
         const sourceColors = {};
 
-        // Generate a color for a source
         function getSourceColor(source) {
             if (!sourceColors[source]) {
-                const hue = Object.keys(sourceColors).length * 137.5 % 360; // Golden angle for distinct colors
+                const hue = Object.keys(sourceColors).length * 137.5 % 360;
                 sourceColors[source] = `hsl(${hue}, 70%, 50%)`;
             }
             return sourceColors[source];
         }
 
-        // Initialize the page
         async function init() {
             await loadSubjects();
             setupEventListeners();
+            applyDatePreset('24h'); // Set default to past 24 hours
             await loadInitialData();
         }
 
-        // Load subjects from endpoint
         async function loadSubjects() {
             try {
                 const response = await fetch('/subjects');
@@ -299,7 +295,6 @@
             }
         }
 
-        // Load data for selected subject and update source filter
         async function loadData(subject) {
             try {
                 const response = await fetch(`/itemsBySubject?subject=${subject}`);
@@ -327,7 +322,6 @@
             }
         }
 
-        // Setup event listeners
         function setupEventListeners() {
             document.getElementById('subjectSelect').addEventListener('change', (e) => loadData(e.target.value));
             document.getElementById('yAxisSelect').addEventListener('change', updateChart);
@@ -348,7 +342,6 @@
             document.getElementById('sourceFilter').addEventListener('change', updateChart);
         }
 
-        // Apply date preset
         function applyDatePreset(preset) {
             const startDateInput = document.getElementById('startDate');
             const endDateInput = document.getElementById('endDate');
@@ -374,12 +367,10 @@
             }
         }
 
-        // Format date to YYYY-MM-DD
         function formatDate(date) {
             return date.toISOString().split('T')[0];
         }
 
-        // Calculate moving average
         function calculateMovingAverage(dataPoints, windowSize = 7) {
             const averages = [];
             for (let i = 0; i < dataPoints.length; i++) {
@@ -395,7 +386,6 @@
             return averages;
         }
 
-        // Update table with current data
         function updateTable(dataPoints, yAxis) {
             const tbody = document.getElementById('newsTableBody');
             const valueHeader = document.getElementById('valueHeader');
@@ -415,7 +405,6 @@
             });
         }
 
-        // Update legend with current sources
         function updateLegend(dataPoints) {
             const legend = document.getElementById('sourceLegend');
             const uniqueSources = [...new Set(dataPoints.map(point => point.source))];
@@ -432,7 +421,6 @@
             });
         }
 
-        // Update chart with current data
         function updateChart() {
             const subject = document.getElementById('subjectSelect').value;
             const yAxis = document.getElementById('yAxisSelect').value;
@@ -491,7 +479,7 @@
                             backgroundColor: chartPoints.map(point => point.backgroundColor),
                             borderColor: chartPoints.map(point => point.backgroundColor),
                             borderWidth: 1,
-                            pointRadius: 4 // Slightly larger points for touch
+                            pointRadius: 4
                         },
                         {
                             label: `7-Day Moving Average`,
@@ -539,7 +527,7 @@
                             enabled: false
                         },
                         legend: {
-                            display: false // Hide Chart.js legend on mobile
+                            display: false
                         }
                     },
                     onClick: (event, elements) => {
@@ -559,7 +547,7 @@
                             tooltip.style.top = `${Math.min(event.y + 10, window.innerHeight - tooltip.offsetHeight - 10)}px`;
                             tooltip.innerHTML = `
                                 <strong>${point.title}</strong><br>
-                                Date: ${point.x.toLocaleDateString()}<br>
+                                Date: ${point.x.toLocaleString()}<br>
                                 Source: ${point.source}
                             `;
                         } else {
@@ -573,13 +561,11 @@
             updateLegend(dataPoints);
         }
 
-        // Load initial data
         async function loadInitialData() {
             const subject = document.getElementById('subjectSelect').value;
             if (subject) await loadData(subject);
         }
 
-        // Start the application
         init();
     </script>
 </body>
