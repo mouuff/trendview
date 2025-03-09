@@ -232,8 +232,8 @@
             <input type="date" id="endDate" placeholder="End Date">
             <select id="datePreset">
                 <option value="all">All Time</option>
-                <option value="24h" selected>Past 24 Hours</option>
-                <option value="week">Past Week</option>
+                <option value="24h">Past 24 Hours</option>
+                <option value="week" selected>Past Week</option>
                 <option value="month">Past Month</option>
             </select>
             <div class="dropdown-container">
@@ -275,7 +275,7 @@
         async function init() {
             await loadSubjects();
             setupEventListeners();
-            applyDatePreset('24h'); // Set default to past 24 hours
+            applyDatePreset('week'); // Set default to past week
             await loadInitialData();
         }
 
