@@ -15,7 +15,7 @@ You can easily set up and run this project entirely locally.
 
 ## Example Results
 
-Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating greater confidence.
+Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating a stronger positive outlook for investing in Bitcoin.
 
 ![Example Result](images/example_result_1.png)
 
