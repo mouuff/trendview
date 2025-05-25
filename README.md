@@ -13,8 +13,6 @@ This project is currently in the prototype stage. It was built over a few days b
 
 You can easily set up and run this project entirely locally.
 
-You can also explore a live demo of TrendView hosted temporarily at: [TrendView Demo](http://79.160.3.137/).
-
 ## Example Results
 
 Below is an example of the calculated confidence in Bitcoin based on recent news. The confidence score ranges from 0 to 100, with higher scores indicating a stronger positive outlook for investing in Bitcoin.
